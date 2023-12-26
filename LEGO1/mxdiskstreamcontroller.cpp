@@ -19,6 +19,7 @@ MxDiskStreamController::MxDiskStreamController()
 MxDiskStreamController::~MxDiskStreamController()
 {
 	// TODO
+	OutputDebugString("MxDiskStreamController::~MxDiskStreamController STUB\n");
 }
 
 // FUNCTION: LEGO1 0x100c7790

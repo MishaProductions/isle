@@ -221,11 +221,13 @@ void MxDisplaySurface::Clear()
 // STUB: LEGO1 0x100baae0
 void MxDisplaySurface::SetPalette(MxPalette* p_palette)
 {
+	OutputDebugString("MxDisplaySurface::SetPalette STUB\n");
 }
 
 // STUB: LEGO1 0x100bacc0
 MxBool MxDisplaySurface::VTable0x28(undefined4, undefined4, undefined4, undefined4, undefined4, undefined4, undefined4)
 {
+	OutputDebugString("MxDisplaySurface::VTable0x28 STUB\n");
 	return 0;
 }
 
@@ -241,12 +243,14 @@ MxBool MxDisplaySurface::VTable0x30(
 	MxBool
 )
 {
+	OutputDebugString("MxDisplaySurface::VTable0x30 STUB\n");
 	return 0;
 }
 
 // STUB: LEGO1 0x100bb850
 undefined4 MxDisplaySurface::VTable0x34(undefined4, undefined4, undefined4, undefined4, undefined4, undefined4)
 {
+	OutputDebugString("MxDisplaySurface::VTable0x34 STUB\n");
 	return 0;
 }
 
@@ -325,6 +329,7 @@ void MxDisplaySurface::ReleaseDC(HDC p_hdc)
 // STUB: LEGO1 0x100bbc60
 LPDIRECTDRAWSURFACE MxDisplaySurface::VTable0x44(MxBitmap*, undefined4*, undefined4, undefined4)
 {
+	OutputDebugString("MxDisplaySurface::VTable0x44 STUB\n");
 	return NULL;
 }
 
@@ -340,6 +345,7 @@ void MxDisplaySurface::VTable0x24(
 	undefined4
 )
 {
+	OutputDebugString("MxDisplaySurface::VTable0x24 STUB\n");
 }
 
 // STUB: LEGO1 0x100bc630
@@ -355,5 +361,6 @@ MxBool MxDisplaySurface::VTable0x2c(
 	MxBool
 )
 {
+	OutputDebugString("MxDisplaySurface::VTable0x2c STUB\n");
 	return 0;
 }

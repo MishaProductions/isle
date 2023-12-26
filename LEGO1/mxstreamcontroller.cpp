@@ -256,12 +256,14 @@ MxPresenter* MxStreamController::FUN_100c1e70(MxDSAction& p_action)
 MxResult MxStreamController::FUN_100c1f00(MxDSAction* p_action)
 {
 	// TODO
+	OutputDebugString("MxStreamController::FUN_100c1f00 STUB\n");
 	return FAILURE;
 }
 
 // STUB: LEGO1 0x100c20b0
 MxNextActionDataStart* MxStreamController::FindNextActionDataStartFromStreamingAction(MxDSStreamingAction* p_action)
 {
+	OutputDebugString("MxStreamController::FindNextActionDataStartFromStreamingAction STUB\n");
 	return NULL;
 }
 
@@ -269,5 +271,6 @@ MxNextActionDataStart* MxStreamController::FindNextActionDataStartFromStreamingA
 MxBool MxStreamController::FUN_100c20d0(MxDSObject& p_obj)
 {
 	// TODO
+	OutputDebugString("MxStreamController::FUN_100c20d0 STUB\n");
 	return TRUE;
 }

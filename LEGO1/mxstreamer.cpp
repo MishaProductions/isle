@@ -157,6 +157,7 @@ MxResult MxStreamer::DeleteObject(MxDSAction* p_dsAction)
 	}
 
 	// TODO: remove action from list
+	OutputDebugString("MxStreamer::DeleteObject STUB\n");
 	return FAILURE;
 }
 

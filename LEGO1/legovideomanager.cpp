@@ -41,6 +41,7 @@ LegoVideoManager::~LegoVideoManager()
 MxResult LegoVideoManager::Create(MxVideoParam& p_videoParam, MxU32 p_frequencyMS, MxBool p_createThread)
 {
 	// TODO
+	OutputDebugString("LegoVideoManager::Create STUB\n");
 	return MxVideoManager::Create(p_videoParam, p_frequencyMS, p_createThread);
 }
 
@@ -87,6 +88,7 @@ MxResult LegoVideoManager::Tickle()
 void LegoVideoManager::VTable0x38(undefined4, undefined4)
 {
 	// TODO
+	OutputDebugString("LegoVideoManager::VTable0x38 STUB\n");
 }
 
 // FUNCTION: LEGO1 0x1007c290
@@ -195,6 +197,7 @@ void LegoVideoManager::VTable0x34(MxU32 p_x, MxU32 p_y, MxU32 p_width, MxU32 p_h
 int LegoVideoManager::EnableRMDevice()
 {
 	// TODO
+	OutputDebugString("LegoVideoManager::EnableRMDevice STUB\n");
 	return 0;
 }
 
@@ -202,5 +205,6 @@ int LegoVideoManager::EnableRMDevice()
 int LegoVideoManager::DisableRMDevice()
 {
 	// TODO
+	OutputDebugString("LegoVideoManager::DisableRMDevice STUB\n");
 	return 0;
 }

@@ -99,5 +99,6 @@ MxResult MxRAMStreamController::DeserializeObject(MxDSStreamingAction& p_action)
 // STUB: LEGO1 0x100d0d80
 undefined* __cdecl ReadData(MxU32* p_fileSizeBuffer, MxU32 p_fileSize)
 {
+	OutputDebugString("ReadData STUB\n");
 	return NULL;
 }
