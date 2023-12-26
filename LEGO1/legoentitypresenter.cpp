@@ -10,6 +10,12 @@ DECOMP_SIZE_ASSERT(LegoEntityPresenter, 0x50);
 LegoEntityPresenter::LegoEntityPresenter()
 {
 	Init();
+
+		{
+		char cad[512];
+		sprintf(cad, "LegoEntityPresenter::LegoEntityPresenter\n");
+		OutputDebugString(cad);
+	}
 }
 
 // FUNCTION: LEGO1 0x100535c0
@@ -56,12 +62,23 @@ MxResult LegoEntityPresenter::StartAction(MxStreamController* p_controller, MxDS
 		VideoManager()->AddPresenter(*this);
 	}
 
+		{
+		char cad[512];
+		sprintf(cad, "LegoEntityPresenter::StartAction\n");
+		OutputDebugString(cad);
+	}
+
 	return result;
 }
 
 // FUNCTION: LEGO1 0x100536c0
 void LegoEntityPresenter::ReadyTickle()
 {
+	{
+		char cad[512];
+		sprintf(cad, "LegoEntityPresenter::ReadyTickle\n");
+		OutputDebugString(cad);
+	}
 	if (GetCurrentWorld()) {
 		m_objectBackend = (LegoEntity*) MxPresenter::CreateEntityBackend("LegoEntity");
 		if (m_objectBackend) {

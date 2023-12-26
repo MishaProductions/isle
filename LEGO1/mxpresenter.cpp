@@ -324,6 +324,7 @@ MxEntity* MxPresenter::CreateEntityBackend(const char* p_name)
 		KeyValueStringParse(buffer, g_strOBJECT, buffer2 + 2);
 	}
 
+		{char cad[512]; sprintf(cad, "MxPresenter::CreateEntityBackend is creating %s\n", buffer);  OutputDebugString(cad);}
 	return (MxEntity*) ObjectFactory()->Create(buffer);
 }
 

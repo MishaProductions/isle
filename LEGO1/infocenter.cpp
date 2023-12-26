@@ -4,6 +4,7 @@
 Infocenter::Infocenter()
 {
 	// TODO
+	OutputDebugString("Infocenter::Infocenter.\n");
 }
 
 // STUB: LEGO1 0x1006ec90

@@ -33,6 +33,8 @@ Isle::Isle()
 	m_act1state = 0;
 	m_unk0x13c = 0;
 
+	OutputDebugString("Isle created.\n");
+
 	NotificationManager()->Register(this);
 }
 

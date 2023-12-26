@@ -37,6 +37,7 @@ LegoWorld::~LegoWorld()
 MxResult LegoWorld::SetAsCurrentWorld(MxDSObject& p_dsObject)
 {
 	// TODO
+	OutputDebugString("LegoWorld::SetAsCurrentWorld STUB\n");
 	return SUCCESS;
 }
 
@@ -62,17 +63,20 @@ MxLong LegoWorld::Notify(MxParam& p_param)
 void LegoWorld::VTable0x54()
 {
 	// TODO
+	OutputDebugString("LegoWorld::VTable0x54 STUB\n");
 }
 
 // STUB: LEGO1 0x1001fc80
 void LegoWorld::FUN_1001fc80(IslePathActor* p_actor)
 {
+	OutputDebugString("LegoWorld::FUN_1001fc80 STUB\n");
 }
 
 // STUB: LEGO1 0x10020120
 MxS32 LegoWorld::GetCurrPathInfo(LegoPathBoundary** p_path, MxS32& p_value)
 {
 	// TODO
+	OutputDebugString("LegoWorld::GetCurrPathInfo STUB\n");
 	return 0;
 }
 
@@ -80,17 +84,20 @@ MxS32 LegoWorld::GetCurrPathInfo(LegoPathBoundary** p_path, MxS32& p_value)
 void LegoWorld::VTable0x58(MxCore* p_object)
 {
 	// TODO
+	OutputDebugString("LegoWorld::VTable0x58 STUB\n");
 }
 
 // STUB: LEGO1 0x10020f10
 void LegoWorld::EndAction(MxCore* p_object)
 {
+	OutputDebugString("LegoWorld::EndAction STUB\n");
 }
 
 // STUB: LEGO1 0x10021a70
 void LegoWorld::VTable0x68(MxBool p_add)
 {
 	// TODO
+	OutputDebugString("LegoWorld::VTable0x68 STUB\n");
 }
 
 // STUB: LEGO1 0x10022080
@@ -108,21 +115,25 @@ void LegoWorld::Stop()
 // STUB: LEGO1 0x100727e0
 MxBool LegoWorld::FUN_100727e0(MxU32, Vector3Data& p_loc, Vector3Data& p_dir, Vector3Data& p_up)
 {
+	OutputDebugString("LegoWorld::FUN_100727e0 STUB\n");
 	return FALSE;
 }
 
 // STUB: LEGO1 0x10072980
 MxBool LegoWorld::FUN_10072980(MxU32, Vector3Data& p_loc, Vector3Data& p_dir, Vector3Data& p_up)
 {
+	OutputDebugString("LegoWorld::FUN_10072980 STUB\n");
 	return FALSE;
 }
 
 // STUB: LEGO1 0x10073400
 void LegoWorld::FUN_10073400()
 {
+	OutputDebugString("LegoWorld::FUN_10073400 STUB\n");
 }
 
 // STUB: LEGO1 0x10073430
 void LegoWorld::FUN_10073430()
 {
+	OutputDebugString("LegoWorld::FUN_10073430 STUB\n");
 }
