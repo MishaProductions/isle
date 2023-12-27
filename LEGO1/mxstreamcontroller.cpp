@@ -3,6 +3,7 @@
 #include "legoomni.h"
 #include "legoutil.h"
 #include "mxautolocker.h"
+#include "mxdsmultiaction.h"
 #include "mxdsstreamingaction.h"
 #include "mxnextactiondatastart.h"
 #include "mxstl/stlcompat.h"
@@ -214,7 +215,7 @@ MxResult MxStreamController::VTable0x30(MxDSAction* p_action)
 	MxResult result = FAILURE;
 	MxDSAction* action = m_unk0x3c.Find(p_action, TRUE);
 	if (action != NULL) {
-		MxNextActionDataStart* data = m_nextActionList.Find(action->GetObjectId(), action->GetUnknown24());
+		MxNextActionDataStart* data = m_nextActionList.FindAndErase(action->GetObjectId(), action->GetUnknown24());
 		delete action;
 		delete data;
 		result = SUCCESS;
@@ -252,25 +253,59 @@ MxPresenter* MxStreamController::FUN_100c1e70(MxDSAction& p_action)
 	return result;
 }
 
-// STUB: LEGO1 0x100c1f00
+// FUNCTION: LEGO1 0x100c1f00
 MxResult MxStreamController::FUN_100c1f00(MxDSAction* p_action)
 {
-	// TODO
-	OutputDebugString("MxStreamController::FUN_100c1f00 STUB\n");
-	return FAILURE;
+	MxAutoLocker lock(&m_criticalSection);
+
+	MxU32 objectId = p_action->GetObjectId();
+	MxStreamChunk* chunk = new MxStreamChunk;
+
+	if (!chunk)
+		return FAILURE;
+
+	chunk->SetFlags(MxDSChunk::Flag_Bit3);
+	chunk->SetObjectId(objectId);
+
+	if (chunk->SendChunk(m_subscriberList, FALSE, p_action->GetUnknown24()) != SUCCESS)
+		delete chunk;
+
+	if (p_action->IsA("MxDSMultiAction")) {
+		MxDSActionList* actions = ((MxDSMultiAction*) p_action)->GetActionList();
+		MxDSActionListCursor cursor(actions);
+		MxDSAction* action;
+
+		while (cursor.Next(action)) {
+			if (FUN_100c1f00(action) != SUCCESS)
+				return FAILURE;
+		}
+	}
+
+	return SUCCESS;
 }
 
-// STUB: LEGO1 0x100c20b0
+// FUNCTION: LEGO1 0x100c20b0
 MxNextActionDataStart* MxStreamController::FindNextActionDataStartFromStreamingAction(MxDSStreamingAction* p_action)
 {
-	OutputDebugString("MxStreamController::FindNextActionDataStartFromStreamingAction STUB\n");
-	return NULL;
+	return m_nextActionList.Find(p_action->GetObjectId(), p_action->GetUnknown24());
 }
 
-// STUB: LEGO1 0x100c20d0
+// FUNCTION: LEGO1 0x100c20d0
 MxBool MxStreamController::FUN_100c20d0(MxDSObject& p_obj)
 {
-	// TODO
-	OutputDebugString("MxStreamController::FUN_100c20d0 STUB\n");
+	if (m_subscriberList.Find(&p_obj))
+		return FALSE;
+
+	if (p_obj.IsA("MxDSMultiAction")) {
+		MxDSActionList* actions = ((MxDSMultiAction&) p_obj).GetActionList();
+		MxDSActionListCursor cursor(actions);
+		MxDSAction* action;
+
+		while (cursor.Next(action)) {
+			if (!FUN_100c20d0(*action))
+				return FALSE;
+		}
+	}
+
 	return TRUE;
 }
