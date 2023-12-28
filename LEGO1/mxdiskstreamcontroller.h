@@ -49,7 +49,7 @@ public:
 
 private:
 	MxStreamListMxDSAction m_list0x64; // 0x64
-	undefined m_unk0x70;               // 0x70
+	MxBool m_unk0x70;                  // 0x70
 	list<MxDSBuffer*> m_list0x74;      // 0x74
 	MxStreamListMxDSAction m_list0x80; // 0x80
 	undefined2 m_unk0x8c;              // 0x8c
@@ -77,6 +77,9 @@ private:
 
 // TEMPLATE: LEGO1 0x100c7490
 // list<MxDSBuffer *,allocator<MxDSBuffer *> >::_Buynode
+
+// SYNTHETIC: LEGO1 0x100c74c0
+// MxDiskStreamController::`scalar deleting destructor'
 
 // TEMPLATE: LEGO1 0x100c74e0
 // List<MxDSBuffer *>::~List<MxDSBuffer *>
