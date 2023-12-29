@@ -331,6 +331,7 @@ MxResult MxOmni::CreatePresenter(MxStreamController* p_controller, MxDSAction& p
 			MxPresenter* sender = p_action.GetUnknown28();
 			if (sender == NULL && (sender = p_controller->FUN_100c1e70(p_action)) == NULL) {
 				if (p_action.GetOrigin() == NULL) {
+					OutputDebugString("The origin of the action is unknown!\n");
 					p_action.SetOrigin(this);
 				}
 

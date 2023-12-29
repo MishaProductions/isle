@@ -36,7 +36,7 @@ ExtraActionType MatchActionString(const char* p_str)
 
 // STUB: LEGO1 0x1003e430
 void InvokeAction(ExtraActionType p_actionId, MxAtomId& p_pAtom, int p_targetEntityId, LegoEntity* p_sender)
-{
+{	OutputDebugString("InvokeAction STUB\n");
 }
 
 // FUNCTION: LEGO1 0x1003eae0
@@ -109,13 +109,14 @@ void ConvertHSVToRGB(float p_h, float p_s, float p_v, float* p_rOut, float* p_bO
 
 // STUB: LEGO1 0x1003ee00
 void FUN_1003ee00(MxAtomId& p_atomId, MxS32 p_id)
-{
+{OutputDebugString("FUN_1003ee00 STUB\n");
 }
 
 // STUB: LEGO1 0x1003ef00
 void FUN_1003ef00(MxBool)
 {
 	// TODO (something related to animation manager)
+	OutputDebugString("FUN_1003ef00 (animation manager) STUB\n");
 }
 
 // FUNCTION: LEGO1 0x1003ef40

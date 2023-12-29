@@ -53,6 +53,7 @@ void MxStillPresenter::CreateBitmap()
 
 	m_bitmap = new MxBitmap;
 	m_bitmap->ImportBitmapInfo(m_bitmapInfo);
+	OutputDebugString("MxStillPresenter::CreateBitmap\n");
 
 	delete m_bitmapInfo;
 	m_bitmapInfo = NULL;
@@ -222,5 +223,6 @@ void MxStillPresenter::ParseExtra()
 MxStillPresenter* MxStillPresenter::Clone()
 {
 	// TODO
+	OutputDebugString("MxStillPresenter::Clone STUB\n");
 	return NULL;
 }

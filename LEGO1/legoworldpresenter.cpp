@@ -122,10 +122,10 @@ void LegoWorldPresenter::StartingTickle()
 
 // STUB: LEGO1 0x10067a70
 void LegoWorldPresenter::VTable0x60(MxPresenter* p_presenter)
-{
+{OutputDebugString("LegoWorldPresenter::VTable0x60 STUB\n");
 }
 
 // STUB: LEGO1 0x10067b00
 void LegoWorldPresenter::ParseExtra()
-{
+{OutputDebugString("LegoWorldPresenter::ParseExtra STUB\n");
 }

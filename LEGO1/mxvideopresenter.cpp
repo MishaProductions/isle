@@ -316,6 +316,7 @@ MxBool MxVideoPresenter::IsHit(MxS32 p_x, MxS32 p_y)
 void MxVideoPresenter::VTable0x6c()
 {
 	// TODO
+	OutputDebugString("MxVideoPresenter::VTable0x6c STUB\n");
 }
 
 // FUNCTION: LEGO1 0x100b2f60
