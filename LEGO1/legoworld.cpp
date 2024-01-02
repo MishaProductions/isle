@@ -42,7 +42,12 @@ LegoWorld::~LegoWorld()
 MxResult LegoWorld::SetAsCurrentWorld(MxDSObject& p_dsObject)
 {
 	// TODO
-	OutputDebugString("LegoWorld::SetAsCurrentWorld STUB\n");
+	MxEntity::Create(p_dsObject);
+
+	// TODO: Initialize list at m_unk0x9c
+	VTable0x54();
+	SetIsWorldActive(TRUE);
+
 	return SUCCESS;
 }
 

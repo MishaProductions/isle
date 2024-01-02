@@ -4,6 +4,7 @@
 BuildingEntity::BuildingEntity()
 {
 	// TODO
+	OutputDebugString("BuildingEntity cctor\n");
 }
 
 // STUB: LEGO1 0x10015030

@@ -187,6 +187,7 @@ void LegoGameState::FUN_1003a720(MxU32)
 void LegoGameState::HandleAction(MxU32)
 {
 	// TODO
+	OutputDebugString("LegoGameState::HandleAction stub\n");
 }
 
 // FUNCTION: LEGO1 0x1003bac0

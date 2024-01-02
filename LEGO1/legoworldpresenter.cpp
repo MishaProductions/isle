@@ -1,5 +1,6 @@
 #include "legoworldpresenter.h"
 
+#include "define.h"
 #include "legoentity.h"
 #include "legoomni.h"
 #include "legovideomanager.h"
@@ -120,12 +121,34 @@ void LegoWorldPresenter::StartingTickle()
 	m_currentTickleState = TickleState_Streaming;
 }
 
-// STUB: LEGO1 0x10067a70
-void LegoWorldPresenter::VTable0x60(MxPresenter* p_presenter)
-{OutputDebugString("LegoWorldPresenter::VTable0x60 STUB\n");
+// STUB: LEGO1 0x10066b40
+void LoadWorld(char* p_world, LegoEntity* p_entity)
+{
+
 }
 
-// STUB: LEGO1 0x10067b00
+// STUB: LEGO1 0x10067a70
+void LegoWorldPresenter::VTable0x60(MxPresenter* p_presenter)
+{
+	OutputDebugString("LegoWorldPresenter::VTable0x60 STUB\n");
+}
+
+// FUNCTION: LEGO1 0x10067b00
 void LegoWorldPresenter::ParseExtra()
-{OutputDebugString("LegoWorldPresenter::ParseExtra STUB\n");
+{
+	MxU32 len = m_action->GetExtraLength();
+	char* data = m_action->GetExtraData();
+
+	if (len == 0)
+		return;
+
+	char copy[1024];
+	memcpy(copy, data, len);
+	copy[len] = 0;
+
+	char result[1024];
+	if (KeyValueStringParse(result, "WORLD", copy)) {
+		LoadWorld(strtok(result, g_parseExtraTokens), m_objectBackend);
+
+	}
 }
