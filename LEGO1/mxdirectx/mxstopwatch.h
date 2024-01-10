@@ -2,7 +2,9 @@
 #define _MxStopWatch_h
 
 #include "assert.h"
-#include "winbase.h"
+
+#include <math.h>
+#include <windows.h>
 
 //////////////////////////////////////////////////////////////////////////////
 //
@@ -11,6 +13,9 @@
 // NOTE:	MxStopWatch measures elapsed (wall clock) time.
 //
 
+#define HUGE_VAL_IMMEDIATE 1.7976931348623157e+308
+
+// SIZE 0x18
 class MxStopWatch {
 public:
 	MxStopWatch();
@@ -26,11 +31,11 @@ protected:
 	unsigned long TicksPerSeconds() const;
 
 private:
-	LARGE_INTEGER m_startTick;
+	LARGE_INTEGER m_startTick; // 0x00
 	// ??? when we provide LARGE_INTEGER arithmetic, use a
 	//     LARGE_INTEGER m_elapsedTicks rather than m_elapsedSeconds
-	double m_elapsedSeconds;
-	unsigned long m_ticksPerSeconds;
+	double m_elapsedSeconds;         // 0x0c
+	unsigned long m_ticksPerSeconds; // 0x14
 };
 
 inline MxStopWatch::MxStopWatch()
@@ -54,7 +59,7 @@ inline void MxStopWatch::Stop()
 
 	if (endTick.HighPart != m_startTick.HighPart) {
 		// LARGE_INTEGER arithmetic not yet provided
-		m_elapsedSeconds = HUGE_VAL;
+		m_elapsedSeconds = HUGE_VAL_IMMEDIATE;
 	}
 	else {
 		m_elapsedSeconds += ((endTick.LowPart - m_startTick.LowPart) / (double) m_ticksPerSeconds);
@@ -97,6 +102,7 @@ inline double MxStopWatch::ElapsedSeconds() const
 // MxFrequencyMeter
 //
 
+// SIZE 0x20
 class MxFrequencyMeter {
 public:
 	MxFrequencyMeter();
@@ -112,8 +118,8 @@ public:
 	void IncreaseOperationCount(unsigned long);
 
 private:
-	unsigned long m_operationCount;
-	MxStopWatch m_stopWatch;
+	unsigned long m_operationCount; // 0x00
+	MxStopWatch m_stopWatch;        // 0x08
 };
 
 //////////////////////////////////////////////////////////////////////////////

@@ -13,8 +13,11 @@ Renderer* Tgl::CreateRenderer()
 	return renderer;
 }
 
+namespace TglImpl
+{
 // GLOBAL: LEGO1 0x1010103c
-IDirect3DRM* g_pD3DRM = NULL;
+IDirect3DRM2* g_pD3DRM = NULL;
+} // namespace TglImpl
 
 // Inlined only
 Result RendererImpl::Create()
@@ -29,23 +32,6 @@ Result RendererImpl::Create()
 	}
 	m_data = g_pD3DRM;
 	return (m_data != NULL) ? Success : Error;
-}
-
-inline void RendererDestroy(IDirect3DRM* pRenderer)
-{
-	int refCount = pRenderer->Release();
-	if (refCount <= 0) {
-		g_pD3DRM = NULL;
-	}
-}
-
-// Inlined only
-void RendererImpl::Destroy()
-{
-	if (m_data) {
-		RendererDestroy(m_data);
-		m_data = NULL;
-	}
 }
 
 // FUNCTION: LEGO1 0x100a1894
@@ -84,9 +70,9 @@ Device* RendererImpl::CreateDevice(const DeviceDirectDrawCreateData& data)
 }
 
 inline Result RendererCreateView(
-	IDirect3DRM* pRenderer,
-	IDirect3DRMDevice* pDevice,
-	IDirect3DRMFrame* pCamera,
+	IDirect3DRM2* pRenderer,
+	IDirect3DRMDevice2* pDevice,
+	IDirect3DRMFrame2* pCamera,
 	IDirect3DRMViewport*& rpView,
 	unsigned long x,
 	unsigned long y,
@@ -133,7 +119,7 @@ View* RendererImpl::CreateView(
 	return view;
 }
 
-inline Result RendererCreateGroup(IDirect3DRM* pRenderer, IDirect3DRMFrame* pParent, IDirect3DRMFrame*& rpGroup)
+inline Result RendererCreateGroup(IDirect3DRM2* pRenderer, IDirect3DRMFrame2* pParent, IDirect3DRMFrame2*& rpGroup)
 {
 	Result result = ResultVal(pRenderer->CreateFrame(NULL, &rpGroup));
 	if (Succeeded(result) && pParent) {
@@ -195,7 +181,7 @@ Light* RendererImpl::CreateLight(LightType type, float r, float g, float b)
 		translatedType = D3DRMLIGHT_AMBIENT;
 	}
 
-	LPDIRECT3DRMFRAME frame;
+	LPDIRECT3DRMFRAME2 frame;
 	Result result = ResultVal(m_data->CreateFrame(NULL, &frame));
 	if (Succeeded(result)) {
 		LPDIRECT3DRMLIGHT d3dLight;
@@ -240,7 +226,7 @@ Unk* RendererImpl::CreateUnk()
 }
 
 inline Result RendererCreateTexture(
-	IDirect3DRM* renderer,
+	IDirect3DRM2* renderer,
 	IDirect3DRMTexture*& texture,
 	int width,
 	int height,
@@ -255,7 +241,8 @@ inline Result RendererCreateTexture(
 	Result result;
 
 	image = new TglD3DRMIMAGE(width, height, bytesPerPixel, pBuffer, useBuffer, paletteSize, pEntries);
-	result = ResultVal(renderer->CreateTexture(&image->m_image, &texture));
+	// TODO: LPDIRECT3DRMTEXTURE2?
+	result = ResultVal(renderer->CreateTexture(&image->m_image, (LPDIRECT3DRMTEXTURE2*) &texture));
 	if (Succeeded(result)) {
 		result = TextureImpl::SetImage(texture, image);
 		if (!Succeeded(result)) {

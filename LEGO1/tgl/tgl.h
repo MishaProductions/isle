@@ -57,8 +57,8 @@ struct PaletteEntry {
 };
 
 struct DeviceDirect3DCreateData {
-	IDirect3D* m_pDirect3D;
-	IDirect3DDevice* m_pDirect3DDevice;
+	IDirect3D2* m_pDirect3D;
+	IDirect3DDevice2* m_pDirect3DDevice;
 };
 
 struct DeviceDirectDrawCreateData {
@@ -110,8 +110,8 @@ public:
 class Renderer : public Object {
 public:
 	// vtable+0x08
-	virtual Device* CreateDevice(const DeviceDirect3DCreateData&) = 0;
 	virtual Device* CreateDevice(const DeviceDirectDrawCreateData&) = 0;
+	virtual Device* CreateDevice(const DeviceDirect3DCreateData&) = 0;
 
 	// vtable+0x10
 	virtual View* CreateView(

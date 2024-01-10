@@ -8,11 +8,9 @@
 #include "legomodelpresenter.h"
 #include "legoomni.h"
 #include "legopartpresenter.h"
-#include "legoroi.h"
 #include "legovideomanager.h"
 #include "legoworldpresenter.h"
 #include "mxbackgroundaudiomanager.h"
-#include "mxdirectdraw.h"
 #include "mxdsaction.h"
 #include "mxomnicreateflags.h"
 #include "mxomnicreateparam.h"
@@ -21,6 +19,7 @@
 #include "mxtimer.h"
 #include "mxtransitionmanager.h"
 #include "res/resource.h"
+#include "viewmanager/viewmanager.h"
 
 #include <dsound.h>
 
@@ -132,9 +131,18 @@ BOOL IsleApp::SetupLegoOmni()
 	char mediaPath[256];
 	GetProfileStringA("LEGO Island", "MediaPath", "", mediaPath, sizeof(mediaPath));
 
+#ifdef COMPAT_MODE
+	BOOL failure;
+	{
+		MxOmniCreateParam param(mediaPath, (struct HWND__*) m_windowHandle, m_videoParam, MxOmniCreateFlags());
+		failure = Lego()->Create(param) == FAILURE;
+	}
+#else
 	BOOL failure =
 		Lego()->Create(MxOmniCreateParam(mediaPath, (struct HWND__*) m_windowHandle, m_videoParam, MxOmniCreateFlags())
 		) == FAILURE;
+#endif
+
 	if (!failure) {
 		VariableTable()->SetVariable("ACTOR_01", "");
 		TickleManager()->SetClientTickleInterval(VideoManager(), 10);
@@ -388,7 +396,7 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		return DefWindowProcA(hWnd, uMsg, wParam, lParam);
 	case WM_DISPLAYCHANGE:
 		if (g_isle && VideoManager() && g_isle->m_fullScreen && VideoManager()->GetDirect3D()) {
-			if (VideoManager()->GetDirect3D()->GetDeviceModeFinder()) {
+			if (VideoManager()->GetDirect3D()->GetAssignedDevice()) {
 				int targetDepth = wParam;
 				int targetWidth = LOWORD(lParam);
 				int targetHeight = HIWORD(lParam);

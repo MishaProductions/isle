@@ -1,14 +1,15 @@
 
-#include "../tgl.h"
+#include "compat.h"
 #include "decomp.h"
+#include "tgl/tgl.h"
 
 #include <d3drm.h>
 
 // Forward declare D3D types
-struct IDirect3DRM;
-struct IDirect3DRMDevice;
+struct IDirect3DRM2;
+struct IDirect3DRMDevice2;
 struct IDirect3DRMViewport;
-struct IDirect3DRMFrame;
+struct IDirect3DRMFrame2;
 struct IDirect3DRMMesh;
 struct IDirect3DRMMeshBuilder;
 struct IDirect3DRMTexture;
@@ -41,11 +42,11 @@ public:
 	RendererImpl() : m_data(0) {}
 	~RendererImpl() { Destroy(); };
 
-	virtual void* ImplementationDataPtr();
+	virtual void* ImplementationDataPtr() override;
 
 	// vtable+0x08
-	virtual Device* CreateDevice(const DeviceDirect3DCreateData&);
-	virtual Device* CreateDevice(const DeviceDirectDrawCreateData&);
+	virtual Device* CreateDevice(const DeviceDirectDrawCreateData&) override;
+	virtual Device* CreateDevice(const DeviceDirect3DCreateData&) override;
 
 	// vtable+0x10
 	virtual View* CreateView(
@@ -55,14 +56,14 @@ public:
 		unsigned long y,
 		unsigned long width,
 		unsigned long height
-	);
-	virtual Camera* CreateCamera();
-	virtual Light* CreateLight(LightType, float r, float g, float b);
-	virtual Group* CreateGroup(const Group* pParent);
+	) override;
+	virtual Camera* CreateCamera() override;
+	virtual Light* CreateLight(LightType, float r, float g, float b) override;
+	virtual Group* CreateGroup(const Group* pParent) override;
 
 	// vtable+0x20
-	virtual Unk* CreateUnk();
-	virtual Texture* CreateTexture();
+	virtual Unk* CreateUnk() override;
+	virtual Texture* CreateTexture() override;
 	virtual Texture* CreateTexture(
 		int width,
 		int height,
@@ -71,19 +72,38 @@ public:
 		int pTexelsArePersistent,
 		int paletteEntryCount,
 		const PaletteEntry* pEntries
-	);
-	virtual Result SetTextureDefaultShadeCount(unsigned long);
+	) override;
+	virtual Result SetTextureDefaultShadeCount(unsigned long) override;
 
 	// vtable+0x30
-	virtual Result SetTextureDefaultColorCount(unsigned long);
+	virtual Result SetTextureDefaultColorCount(unsigned long) override;
 
 public:
 	inline Result Create();
 	inline void Destroy();
 
 private:
-	IDirect3DRM* m_data;
+	IDirect3DRM2* m_data;
 };
+
+extern IDirect3DRM2* g_pD3DRM;
+
+inline void RendererDestroy(IDirect3DRM2* pRenderer)
+{
+	int refCount = pRenderer->Release();
+	if (refCount <= 0) {
+		g_pD3DRM = NULL;
+	}
+}
+
+// Inlined only
+void RendererImpl::Destroy()
+{
+	if (m_data) {
+		RendererDestroy(m_data);
+		m_data = NULL;
+	}
+}
 
 // VTABLE 0x100db988
 class DeviceImpl : public Device {
@@ -114,12 +134,12 @@ public:
 	virtual void InitFromD3DDevice(Device*);
 	virtual void InitFromWindowsDevice(Device*);
 
-	inline IDirect3DRMDevice* ImplementationData() const { return m_data; }
+	inline IDirect3DRMDevice2* ImplementationData() const { return m_data; }
 
 	friend class RendererImpl;
 
 private:
-	IDirect3DRMDevice* m_data;
+	IDirect3DRMDevice2* m_data;
 };
 
 // VTABLE 0x100db9e8
@@ -166,7 +186,7 @@ public:
 
 	inline IDirect3DRMViewport* ImplementationData() const { return m_data; }
 
-	static Result ViewportCreateAppData(IDirect3DRM*, IDirect3DRMViewport*, IDirect3DRMFrame*);
+	static Result ViewportCreateAppData(IDirect3DRM2*, IDirect3DRMViewport*, IDirect3DRMFrame2*);
 
 	friend class RendererImpl;
 
@@ -191,12 +211,12 @@ public:
 	// vtable+0x08
 	virtual Result SetTransformation(const FloatMatrix4&);
 
-	inline IDirect3DRMFrame* ImplementationData() const { return m_data; }
+	inline IDirect3DRMFrame2* ImplementationData() const { return m_data; }
 
 	friend class RendererImpl;
 
 private:
-	IDirect3DRMFrame* m_data;
+	IDirect3DRMFrame2* m_data;
 };
 
 // VTABLE 0x100dbaf8
@@ -217,12 +237,12 @@ public:
 	virtual Result SetTransformation(const FloatMatrix4&);
 	virtual Result SetColor(float r, float g, float b);
 
-	inline IDirect3DRMFrame* ImplementationData() const { return m_data; }
+	inline IDirect3DRMFrame2* ImplementationData() const { return m_data; }
 
 	friend class RendererImpl;
 
 private:
-	IDirect3DRMFrame* m_data;
+	IDirect3DRMFrame2* m_data;
 };
 
 // VTABLE 0x100dbb88
@@ -301,7 +321,7 @@ public:
 	friend class RendererImpl;
 
 private:
-	IDirect3DRMFrame* m_data;
+	IDirect3DRMFrame2* m_data;
 };
 
 // VTABLE 0x100dbb18
