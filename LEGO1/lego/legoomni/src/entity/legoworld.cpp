@@ -48,6 +48,8 @@ MxResult LegoWorld::SetAsCurrentWorld(MxDSObject& p_dsObject)
 	VTable0x54();
 	SetIsWorldActive(TRUE);
 
+	SetCurrentWorld(this);
+
 	return SUCCESS;
 }
 

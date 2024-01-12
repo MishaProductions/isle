@@ -4,6 +4,7 @@
 #include "legoomni.h"
 #include "legoutil.h"
 #include "legoworld.h"
+#include "mxutil.h"
 
 DECOMP_SIZE_ASSERT(LegoEntity, 0x68)
 

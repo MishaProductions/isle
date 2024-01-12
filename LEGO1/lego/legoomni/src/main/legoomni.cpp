@@ -216,6 +216,12 @@ MxDSAction& GetCurrentAction()
 	return LegoOmni::GetInstance()->GetCurrentAction();
 }
 
+// FUNCTION: LEGO1 0x100158f0
+void SetCurrentWorld(LegoWorld* p_world)
+{
+	LegoOmni::GetInstance()->SetWorld(p_world);
+}
+
 // FUNCTION: LEGO1 0x10015900
 MxTransitionManager* TransitionManager()
 {
@@ -625,6 +631,7 @@ MxEntity* LegoOmni::FindWorld(const char* p_id, MxS32 p_entityId, MxPresenter* p
 // FUNCTION: LEGO1 0x1005b3a0
 void LegoOmni::NotifyCurrentEntity(MxNotificationParam* p_param)
 {
+	OutputDebugString("notify current entity\n");
 	if (m_currentWorld)
 		NotificationManager()->Send(m_currentWorld, p_param);
 }

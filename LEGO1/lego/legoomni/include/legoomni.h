@@ -118,6 +118,7 @@ public:
 	inline void SetNavController(LegoNavController* p_navController) { m_navController = p_navController; }
 
 	inline void SetExit(MxBool p_exit) { m_exit = p_exit; };
+	inline void SetWorld(LegoWorld* p_world) { m_currentWorld = p_world; };
 
 private:
 	undefined4* m_unk0x68;                       // 0x68
@@ -161,6 +162,7 @@ GifManager* GetGifManager();
 void FUN_10015820(MxU32, MxU32);
 LegoEntity* FindEntityByAtomIdOrEntityId(const MxAtomId& p_atom, MxS32 p_entityid);
 MxDSAction& GetCurrentAction();
+void SetCurrentWorld(LegoWorld* p_world);
 
 void PlayMusic(MxU32 p_index);
 void SetIsWorldActive(MxBool p_isWorldActive);
