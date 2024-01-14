@@ -115,7 +115,11 @@ LegoObjectFactory::LegoObjectFactory()
 MxCore* LegoObjectFactory::Create(const char* p_name)
 {
 	MxAtomId atom(p_name, LookupMode_Exact);
-
+{
+		char cad[512];
+		sprintf(cad, "LegoObjectFactory create %s\n", p_name);
+		OutputDebugString(cad);
+	}
 #define X(V)                                                                                                           \
 	if (this->m_id##V == atom) {                                                                                       \
 		return new V;                                                                                                  \

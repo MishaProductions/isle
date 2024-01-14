@@ -131,6 +131,7 @@ MxLong Score::FUN_10001510(MxEndActionNotificationParam& p_param)
 void Score::VTable0x50()
 {
 	LegoWorld::VTable0x50();
+	OutputDebugString("score start\n");
 
 	MxDSAction action;
 	action.SetObjectId(0x1f4);

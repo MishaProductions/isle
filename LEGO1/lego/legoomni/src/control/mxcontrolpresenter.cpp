@@ -91,6 +91,8 @@ void MxControlPresenter::ReadyTickle()
 	MxPresenter::ParseExtra();
 	TickleManager()->UnregisterClient(this);
 	ProgressTickleState(TickleState_Repeating);
+
+	EndAction();
 }
 
 // STUB: LEGO1 0x10044640

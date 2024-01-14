@@ -594,7 +594,7 @@ void LegoOmni::AddWorld(LegoWorld* p_world)
 
 // STUB: LEGO1 0x1005af10
 void LegoOmni::RemoveWorld(const MxAtomId&, MxLong)
-{
+{OutputDebugString("LegoOmni::RemoveWorld stub\n");
 	// TODO
 }
 
@@ -617,7 +617,7 @@ LegoEntity* LegoOmni::FindByEntityIdOrAtomId(const MxAtomId& p_atom, MxS32 p_ent
 
 // STUB: LEGO1 0x1005b1d0
 void LegoOmni::DeleteObject(MxDSAction& p_dsAction)
-{
+{OutputDebugString("LegoOmni::DeleteObject stub\n");
 	// TODO
 }
 

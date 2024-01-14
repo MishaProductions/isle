@@ -30,6 +30,12 @@ MxCore* MxObjectFactory::Create(const char* p_name)
 	MxCore* object = NULL;
 	MxAtomId atom(p_name, LookupMode_Exact);
 
+	{
+		char cad[512];
+		sprintf(cad, "ObjectFactory create %s\n", p_name);
+		OutputDebugString(cad);
+	}
+
 	if (0) {
 	}
 #define X(V)                                                                                                           \
@@ -40,9 +46,12 @@ MxCore* MxObjectFactory::Create(const char* p_name)
 	FOR_MXOBJECTFACTORY_OBJECTS(X)
 #undef X
 
-	if (!object)
-	{
-		{char cad[512]; sprintf(cad, "ObjectFactory failed to create %s\n", p_name);  OutputDebugString(cad);}
+	if (!object) {
+		{
+			char cad[512];
+			sprintf(cad, "ObjectFactory failed to create %s\n", p_name);
+			OutputDebugString(cad);
+		}
 	}
 	return object;
 }

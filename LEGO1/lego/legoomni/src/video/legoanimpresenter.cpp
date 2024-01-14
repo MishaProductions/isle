@@ -11,3 +11,9 @@ void LegoAnimPresenter::Init()
 {
 	// TODO
 }
+
+void LegoAnimPresenter::ReadyTickle()
+{
+	OutputDebugString("LegoAnimPresenter::ReadyTickle\n");
+	EndAction();
+}

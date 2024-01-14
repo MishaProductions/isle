@@ -21,6 +21,8 @@ public:
 		return !strcmp(p_name, LegoAnimPresenter::ClassName()) || MxVideoPresenter::IsA(p_name);
 	}
 
+	virtual void ReadyTickle() override;
+
 private:
 	void Init();
 };
