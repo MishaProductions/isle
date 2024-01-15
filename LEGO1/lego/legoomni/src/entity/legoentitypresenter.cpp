@@ -21,7 +21,7 @@ LegoEntityPresenter::LegoEntityPresenter()
 // FUNCTION: LEGO1 0x100535c0
 void LegoEntityPresenter::Init()
 {
-	m_objectBackend = 0;
+	m_entity = NULL;
 }
 
 // FUNCTION: LEGO1 0x100535d0
@@ -31,9 +31,9 @@ LegoEntityPresenter::~LegoEntityPresenter()
 }
 
 // FUNCTION: LEGO1 0x10053630
-undefined4 LegoEntityPresenter::SetBackend(LegoEntity* p_backend)
+undefined4 LegoEntityPresenter::SetEntity(LegoEntity* p_entity)
 {
-	m_objectBackend = p_backend;
+	m_entity = p_entity;
 	return 0;
 }
 
@@ -41,7 +41,7 @@ undefined4 LegoEntityPresenter::SetBackend(LegoEntity* p_backend)
 void LegoEntityPresenter::Destroy(MxBool p_fromDestructor)
 {
 	if (VideoManager()) {
-		VideoManager()->RemovePresenter(*this);
+		VideoManager()->UnregisterPresenter(*this);
 	}
 
 	Init();
@@ -59,7 +59,7 @@ MxResult LegoEntityPresenter::StartAction(MxStreamController* p_controller, MxDS
 	MxResult result = MxCompositePresenter::StartAction(p_controller, p_action);
 
 	if (VideoManager()) {
-		VideoManager()->AddPresenter(*this);
+		VideoManager()->RegisterPresenter(*this);
 	}
 
 		{
@@ -80,10 +80,10 @@ void LegoEntityPresenter::ReadyTickle()
 		OutputDebugString(cad);
 	}
 	if (GetCurrentWorld()) {
-		m_objectBackend = (LegoEntity*) MxPresenter::CreateEntityBackend("LegoEntity");
-		if (m_objectBackend) {
-			m_objectBackend->Create(*m_action);
-			m_objectBackend->SetLocation(m_action->GetLocation(), m_action->GetDirection(), m_action->GetUp(), TRUE);
+		m_entity = (LegoEntity*) MxPresenter::CreateEntity("LegoEntity");
+		if (m_entity) {
+			m_entity->Create(*m_action);
+			m_entity->SetLocation(m_action->GetLocation(), m_action->GetDirection(), m_action->GetUp(), TRUE);
 			ParseExtra();
 		}
 		ProgressTickleState(TickleState_Starting);
@@ -99,14 +99,14 @@ void LegoEntityPresenter::RepeatingTickle()
 }
 
 // FUNCTION: LEGO1 0x10053730
-void LegoEntityPresenter::SetBackendLocation(
+void LegoEntityPresenter::SetEntityLocation(
 	Mx3DPointFloat& p_location,
 	Mx3DPointFloat& p_direction,
 	Mx3DPointFloat& p_up
 )
 {
-	if (m_objectBackend) {
-		m_objectBackend->SetLocation(p_location, p_direction, p_up, TRUE);
+	if (m_entity) {
+		m_entity->SetLocation(p_location, p_direction, p_up, TRUE);
 	}
 }
 
@@ -120,6 +120,6 @@ void LegoEntityPresenter::ParseExtra()
 		data[len] = 0;
 
 		len &= MAXWORD;
-		m_objectBackend->ParseAction(data);
+		m_entity->ParseAction(data);
 	}
 }
