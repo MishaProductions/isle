@@ -90,10 +90,10 @@ void MxStillPresenter::LoadFrame(MxStreamChunk* p_chunk)
 		delete m_bitmap;
 		m_bitmap = NULL;
 
-		if (m_unk0x58 && und)
+		//if (m_unk0x58 && und)
 			m_flags |= Flag_Bit3;
-		else
-			m_flags &= ~Flag_Bit3;
+		//else
+		//	m_flags &= ~Flag_Bit3;
 	}
 }
 
@@ -123,9 +123,18 @@ void MxStillPresenter::StreamingTickle()
 		m_chunkTime = chunk->GetTime();
 		NextFrame();
 		ProgressTickleState(TickleState_Repeating);
-
+OutputDebugString("MxStillPresenter:a\n");
+if (!m_compositePresenter)
+{
+		OutputDebugString("composite presenter is NULL\n");
+}
 		if (m_action->GetDuration() == -1 && m_compositePresenter)
-			m_compositePresenter->VTable0x60(this);
+			{OutputDebugString("!!!!!!!!!!!!!!!!!MxStillPresenter:b!!!!!!!!!!!!!!!\n");
+			OutputDebugString("composite presenter is ");
+				m_compositePresenter->VTable0x60(this);
+				OutputDebugString(m_compositePresenter->ClassName());
+				OutputDebugString("\n");
+			}
 	}
 }
 

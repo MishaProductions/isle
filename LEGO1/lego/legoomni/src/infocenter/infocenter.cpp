@@ -1,5 +1,8 @@
 #include "infocenter.h"
 
+#include "legoomni.h"
+#include "mxbackgroundaudiomanager.h"
+
 // STUB: LEGO1 0x1006ea20
 Infocenter::Infocenter()
 {
@@ -16,14 +19,18 @@ Infocenter::~Infocenter()
 // STUB: LEGO1 0x1006ed90
 MxResult Infocenter::Create(MxDSAction& p_dsAction)
 {
-	return FAILURE;
+	OutputDebugString("InfoCenter::Create\n");
+
+	LegoWorld::Create(p_dsAction);
+
+	return SUCCESS;
 }
 
 // STUB: LEGO1 0x1006ef10
 MxLong Infocenter::Notify(MxParam& p_param)
 {
 	// TODO
-	return 0;
+	return LegoWorld::Notify(p_param);
 }
 
 // STUB: LEGO1 0x1006f4e0
@@ -42,7 +49,7 @@ void Infocenter::VTable0x68(MxBool p_add)
 MxResult Infocenter::Tickle()
 {
 	// TODO
-	return 0;
+	return LegoWorld::Tickle();
 }
 
 // FUNCTION: LEGO1 0x10070d00

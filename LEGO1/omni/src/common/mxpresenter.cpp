@@ -106,7 +106,7 @@ void MxPresenter::ParseExtra()
 
 // FUNCTION: LEGO1 0x100b5120
 void MxPresenter::SendToCompositePresenter(MxOmni* p_omni)
-{
+{OutputDebugString("sendtocompositepresenter start\n");
 	if (m_compositePresenter) {
 		MxAutoLocker lock(&m_criticalSection);
 
@@ -120,6 +120,7 @@ void MxPresenter::SendToCompositePresenter(MxOmni* p_omni)
 #endif
 
 		m_action->SetOrigin(p_omni ? p_omni : MxOmni::GetInstance());
+		OutputDebugString("sendtocompositepresenter\n");
 		m_compositePresenter = NULL;
 	}
 }

@@ -88,11 +88,30 @@ MxResult LegoWorldPresenter::StartAction(MxStreamController* p_controller, MxDSA
 			const char* presenterName = PresenterNameDispatch(*action);
 			MxPresenter* presenter = (MxPresenter*) factory->Create(presenterName);
 
+			{
+				char cad[512];
+				sprintf(cad, "LegoWorldPresenter is created %s\n", presenterName);
+				OutputDebugString(cad);
+			}
 			if (presenter && presenter->AddToManager() == SUCCESS) {
 				presenter->SetCompositePresenter(this);
 				if (presenter->StartAction(p_controller, action) == SUCCESS) {
 					presenter->SetTickleState(TickleState_Idle);
 					success = TRUE;
+				}
+				else {
+					{
+						char cad[512];
+						sprintf(cad, "StartAction failed for %s\n", presenterName);
+						OutputDebugString(cad);
+					}
+				}
+			}
+			else {
+				{
+					char cad[512];
+					sprintf(cad, "AddToManager / new presenter failed for %s\n", presenterName);
+					OutputDebugString(cad);
 				}
 			}
 
@@ -149,7 +168,7 @@ void LegoWorldPresenter::StartingTickle()
 // STUB: LEGO1 0x10067a70
 void LegoWorldPresenter::VTable0x60(MxPresenter* p_presenter)
 {
-	OutputDebugString("LegoWorldPresenter::VTable0x60 STUB\n");
+	OutputDebugString("!!!!!!!!!!!!LegoWorldPresenter::VTable0x60 STUB!!!!!!!!!!!!!!!!\n");
 }
 
 // STUB: LEGO1 0x10067b00
