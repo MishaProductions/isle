@@ -110,6 +110,7 @@ MxLong MxCompositePresenter::Notify(MxParam& p_param)
 
 	switch (((MxNotificationParam&) p_param).GetNotification()) {
 	case c_notificationEndAction:
+		OutputDebugString("[MxCompositePresenter]: Action ended\n");
 		VTable0x58((MxEndActionNotificationParam&) p_param);
 		break;
 	case MXPRESENTER_NOTIFICATION:
@@ -150,9 +151,28 @@ void MxCompositePresenter::VTable0x58(MxEndActionNotificationParam& p_param)
 		delete action;
 
 	if (m_list.empty()) {
+		OutputDebugString("[MxCompositePresenter]: List empty, ending action\n");
 		EndAction();
 	}
 	else {
+		OutputDebugString("[MxCompositePresenter]: List NOT empty, reset pressenters\n");
+
+		for (MxCompositePresenterList::iterator it2 = m_list.begin(); it2 != m_list.end(); it2++) {
+			{
+				char cad[512];
+				sprintf(
+					cad,
+					"[MxCompositePresenter %s]: Presenter: %s, State: %d\n",
+					ClassName(),
+					(*it2)->ClassName(),
+					(*it2)->GetCurrentTickleState()
+				);
+				OutputDebugString(cad);
+			}
+		}
+
+		OutputDebugString("End of presenter dump\n");
+
 		if (m_action->IsA("MxDSSerialAction") && it != m_list.end()) {
 			MxPresenter* presenter = *it;
 			if (presenter->GetCurrentTickleState() == TickleState_Idle)

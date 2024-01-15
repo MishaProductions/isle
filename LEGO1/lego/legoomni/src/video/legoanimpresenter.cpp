@@ -241,9 +241,3 @@ void LegoAnimClass::VTable0xc()
 {
 	// TODO
 }
-
-void LegoAnimPresenter::ReadyTickle()
-{
-	OutputDebugString("LegoAnimPresenter::ReadyTickle\n");
-	EndAction();
-}

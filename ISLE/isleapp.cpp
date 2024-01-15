@@ -758,8 +758,8 @@ void IsleApp::LoadConfig()
 inline void IsleApp::Tick(BOOL sleepIfNotNextFrame)
 {
 	if (!this->m_windowActive) {
-		Sleep(0);
-		return;
+		//Sleep(0);
+		//return;
 	}
 
 	if (!Lego())

@@ -381,8 +381,7 @@ void MxOmni::DestroyInstance()
 MxBool MxOmni::FUN_100b06b0(MxDSAction* p_action, const char* p_name)
 {
 	// TODO
-	OutputDebugString("MxOmni::FUN_100b06b0 STUB\n");
-	return FAILURE;
+	return 0;
 }
 
 // FUNCTION: LEGO1 0x100b07f0
