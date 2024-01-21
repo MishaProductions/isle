@@ -46,6 +46,7 @@ private:
 	void Init();
 	void Destroy(MxBool p_fromDestructor);
 
+protected:
 	LegoAnimClass* m_unk0x64;  // 0x64
 	undefined4 m_unk0x68;      // 0x68
 	undefined4 m_unk0x6c;      // 0x6c
