@@ -1,6 +1,7 @@
 #ifndef LEGOHIDEANIMPRESENTER_H
 #define LEGOHIDEANIMPRESENTER_H
 
+#include "decomp.h"
 #include "legoloopinganimpresenter.h"
 
 // VTABLE: LEGO1 0x100d9278
@@ -23,8 +24,18 @@ public:
 		return !strcmp(p_name, ClassName()) || LegoAnimPresenter::IsA(p_name);
 	}
 
+	virtual void ReadyTickle() override;      // vtable+0x18
+	virtual void StartingTickle() override;   // vtable+0x18
+	virtual MxResult AddToManager() override; // vtable+0x34
+	virtual void Destroy() override;          // vtable+0x38
+	virtual void EndAction() override;        // vtable+0x40
+	virtual void PutFrame() override;         // vtable+0x6c
+
 private:
 	void Init();
+	void Destroy(MxBool p_fromDestructor);
+
+	undefined4* m_unk0xc0; // 0xc0
 };
 
 // SYNTHETIC: LEGO1 0x1006d9d0

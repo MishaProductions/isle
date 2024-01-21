@@ -30,9 +30,9 @@ public:
 	virtual MxResult Create(MxVideoParam& p_videoParam, MxU32 p_frequencyMS, MxBool p_createThread)
 		override;                                                                          // vtable+0x2c
 	virtual MxResult RealizePalette(MxPalette*) override;                                  // vtable+0x30
-	virtual void VTable0x34(MxU32 p_x, MxU32 p_y, MxU32 p_width, MxU32 p_height) override; // vtable+0x34
+	virtual void UpdateView(MxU32 p_x, MxU32 p_y, MxU32 p_width, MxU32 p_height) override; // vtable+0x34
 	virtual void VTable0x38(undefined4, undefined4);                                       // vtable+0x38
-	// FUNCTION: LGEO1 0x1007ab10
+	// FUNCTION: LEGO1 0x1007ab10
 	virtual LegoUnknown100d9d00* VTable0x3c() { return m_unk0x100d9d00; } // vtable+0x3c
 
 	void SetSkyColor(float p_red, float p_green, float p_blue);
@@ -72,8 +72,8 @@ private:
 	MxS32 m_cursorYCopy;                  // 0x508
 	MxS32 m_cursorX;                      // 0x50c
 	MxS32 m_cursorY;                      // 0x510
-	LPDIRECTDRAWSURFACE m_unk0x514;       // 0x514
-	RECT m_unk0x518;                      // 0x518
+	LPDIRECTDRAWSURFACE m_cursorSurface;  // 0x514
+	RECT m_cursorRect;                    // 0x518
 	undefined4 m_unk0x528;                // 0x528
 	MxBool m_drawFPS;                     // 0x52c
 	RECT m_fpsRect;                       // 0x530

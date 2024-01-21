@@ -10,8 +10,8 @@
 class OrientableROI : public ROI {
 public:
 	enum {
-		Flag_Bit1 = 0x01,
-		Flag_Bit2 = 0x02
+		c_bit1 = 0x01,
+		c_bit2 = 0x02
 	};
 
 	OrientableROI();
@@ -28,6 +28,7 @@ public:
 	virtual void UpdateWorldData(const MxMatrix& p_transform);  // vtable+0x28
 	virtual void UpdateWorldVelocity();                         // vtable+0x2c
 
+	const MxMatrix& GetLocal2World() const { return m_local2world; }
 	const float* GetWorldPosition() const { return m_local2world[3]; }
 	const float* GetWorldDirection() const { return m_local2world[2]; }
 	const float* GetWorldUp() const { return m_local2world[1]; }

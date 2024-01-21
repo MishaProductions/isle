@@ -38,6 +38,9 @@ public:
 
 	virtual MxResult Tickle() override; // vtable+0x8
 
+	// FUNCTION: LEGO1 0x1005b8c0
+	virtual MxResult PutData() override { return SUCCESS; }; // vtable+0x4c
+
 	MxResult Create(HWND p_hwnd);
 	void Destroy();
 	void CreateAndAcquireKeyboard(HWND p_hwnd);
@@ -46,15 +49,23 @@ public:
 	MxResult GetJoystickState(MxU32* p_joystickX, MxU32* p_joystickY, DWORD* p_buttonsState, MxU32* p_povPosition);
 	void SetTimer();
 	void KillTimer();
+	void EnableInputProcessing();
 	void SetCamera(LegoCameraController* p_camera);
 	void ClearCamera();
 	void SetWorld(LegoWorld* p_world);
 	void ClearWorld();
 
 	inline void SetUnknown88(MxBool p_unk0x88) { m_unk0x88 = p_unk0x88; }
+	inline void SetUnknown335(MxBool p_unk0x335) { m_unk0x335 = p_unk0x335; }
 	inline void SetUnknown336(MxBool p_unk0x336) { m_unk0x336 = p_unk0x336; }
 	inline void SetUseJoystick(MxBool p_useJoystick) { m_useJoystick = p_useJoystick; }
 	inline void SetJoystickIndex(MxS32 p_joystickIndex) { m_joystickIndex = p_joystickIndex; }
+
+	inline void DisableInputProcessing()
+	{
+		m_unk0x88 = TRUE;
+		m_unk0x336 = FALSE;
+	}
 
 	inline LegoControlManager* GetControlManager() { return m_controlManager; }
 	inline LegoWorld* GetWorld() { return m_world; }
@@ -62,6 +73,9 @@ public:
 
 	void ProcessEvents();
 	MxBool ProcessOneEvent(LegoEventNotificationParam& p_param);
+
+	// SYNTHETIC: LEGO1 0x1005b8d0
+	// LegoInputManager::`scalar deleting destructor'
 
 private:
 	MxCriticalSection m_criticalSection;

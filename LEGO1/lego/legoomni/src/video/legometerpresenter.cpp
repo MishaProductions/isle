@@ -7,24 +7,31 @@
 DECOMP_SIZE_ASSERT(LegoMeterPresenter, 0x94)
 
 // GLOBAL: LEGO1 0x1010207c
-const char* g_filterIndex = "FILTER_INDEX";
+// STRING: LEGO1 0x10101fb4
+const char* g_filterIndex = "FILLER_INDEX";
 
 // GLOBAL: LEGO1 0x10102094
+// STRING: LEGO1 0x10101f70
 const char* g_type = "TYPE";
 
 // GLOBAL: LEGO1 0x10102088
+// STRING: LEGO1 0x10101f94
 const char* g_leftToRight = "LEFT_TO_RIGHT";
 
 // GLOBAL: LEGO1 0x101020ac
+// STRING: LEGO1 0x10101f28
 const char* g_rightToLeft = "RIGHT_TO_LEFT";
 
 // GLOBAL: LEGO1 0x1010205c
+// STRING: LEGO1 0x10102000
 const char* g_bottomToTop = "BOTTOM_TO_TOP";
 
 // GLOBAL: LEGO1 0x101020c0
+// STRING: LEGO1 0x10101f00
 const char* g_topToBottom = "TOP_TO_BOTTOM";
 
 // GLOBAL: LEGO1 0x101020c8
+// STRING: LEGO1 0x10101ee4
 const char* g_variable = "VARIABLE";
 
 // FUNCTION: LEGO1 0x10043430
@@ -34,7 +41,7 @@ LegoMeterPresenter::LegoMeterPresenter()
 	m_unk0x6c = 0;
 	m_unk0x84 = 0;
 	m_type = 1;
-	m_flags &= ~Flag_Bit2;
+	m_flags &= ~c_bit2;
 }
 
 // FUNCTION: LEGO1 0x10043780

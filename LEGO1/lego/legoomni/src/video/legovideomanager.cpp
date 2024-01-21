@@ -30,7 +30,7 @@ LegoVideoManager::LegoVideoManager()
 	m_cursorX = m_cursorY;
 	m_cursorYCopy = m_cursorY;
 	m_cursorXCopy = m_cursorY;
-	m_unk0x514 = NULL;
+	m_cursorSurface = NULL;
 	m_fullScreenMovie = FALSE;
 	m_drawFPS = FALSE;
 	m_unk0x528 = 0;
@@ -230,7 +230,7 @@ void LegoVideoManager::MoveCursor(MxS32 p_cursorX, MxS32 p_cursorY)
 MxResult LegoVideoManager::Tickle()
 {
 	if (m_unk0x554 && !m_videoParam.Flags().GetFlipSurfaces() &&
-		TransitionManager()->GetTransitionType() == MxTransitionManager::NOT_TRANSITIONING)
+		TransitionManager()->GetTransitionType() == MxTransitionManager::e_notTransitioning)
 		Sleep(30);
 
 	m_stopWatch->Stop();
@@ -309,18 +309,19 @@ inline void LegoVideoManager::DrawCursor()
 
 	LPDIRECTDRAWSURFACE ddSurface2 = m_displaySurface->GetDirectDrawSurface2();
 
-	if (!m_unk0x514) {
-		m_unk0x518.top = 0;
-		m_unk0x518.left = 0;
-		m_unk0x518.bottom = 16;
-		m_unk0x518.right = 16;
-		m_unk0x514 = MxDisplaySurface::FUN_100bc070();
+	if (!m_cursorSurface) {
+		m_cursorRect.top = 0;
+		m_cursorRect.left = 0;
+		m_cursorRect.bottom = 16;
+		m_cursorRect.right = 16;
+		m_cursorSurface = MxDisplaySurface::CreateCursorSurface();
 
-		if (!m_unk0x514)
+		if (!m_cursorSurface)
 			m_drawCursor = FALSE;
 	}
 
-	ddSurface2->BltFast(m_cursorXCopy, m_cursorYCopy, m_unk0x514, &m_unk0x518, DDBLTFAST_WAIT | DDBLTFAST_SRCCOLORKEY);
+	ddSurface2
+		->BltFast(m_cursorXCopy, m_cursorYCopy, m_cursorSurface, &m_cursorRect, DDBLTFAST_WAIT | DDBLTFAST_SRCCOLORKEY);
 }
 
 // STUB: LEGO1 0x1007bbc0
@@ -370,7 +371,7 @@ void LegoVideoManager::EnableFullScreenMovie(MxBool p_enable, MxBool p_scale)
 			m_fullScreenMovie = TRUE;
 		}
 		else {
-			m_displaySurface->FUN_100ba640();
+			m_displaySurface->ClearScreen();
 			m_displaySurface->GetVideoParam().Flags().SetF1bit3(FALSE);
 
 			// restore previous pallete
@@ -424,7 +425,7 @@ void LegoVideoManager::OverrideSkyColor(MxBool p_shouldOverride)
 }
 
 // FUNCTION: LEGO1 0x1007c4d0
-void LegoVideoManager::VTable0x34(MxU32 p_x, MxU32 p_y, MxU32 p_width, MxU32 p_height)
+void LegoVideoManager::UpdateView(MxU32 p_x, MxU32 p_y, MxU32 p_width, MxU32 p_height)
 {
 	if (p_width == 0) {
 		p_width = m_videoParam.GetRect().GetWidth();
@@ -465,7 +466,7 @@ MxResult LegoVideoManager::ConfigureD3DRM()
 
 	MxAssignedDevice* assignedDevice = m_direct3d->GetAssignedDevice();
 
-	if (assignedDevice && assignedDevice->GetFlags() & MxAssignedDevice::Flag_HardwareMode) {
+	if (assignedDevice && assignedDevice->GetFlags() & MxAssignedDevice::c_hardwareMode) {
 		if (assignedDevice->GetDesc().dpcTriCaps.dwTextureFilterCaps & D3DPTFILTERCAPS_LINEAR)
 			d3drm->SetTextureQuality(D3DRMTEXTURE_LINEAR);
 

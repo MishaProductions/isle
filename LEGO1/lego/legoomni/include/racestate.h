@@ -30,7 +30,12 @@ public:
 		return !strcmp(p_name, RaceState::ClassName()) || LegoState::IsA(p_name);
 	}
 
+	virtual MxResult VTable0x1c(LegoFileStream* p_legoFileStream) override; // vtable+0x1c
+
 	inline MxU16 GetColor(MxU8 p_id) { return GetState(p_id)->m_color; }
+
+	// SYNTHETIC: LEGO1 0x100160d0
+	// RaceState::`scalar deleting destructor'
 
 private:
 	RaceStateEntry* GetState(MxU8 p_id);

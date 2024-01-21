@@ -13,8 +13,8 @@ class MxDirect3D;
 class MxAssignedDevice {
 public:
 	enum {
-		Flag_HardwareMode = 0x01,
-		Flag_PrimaryDevice = 0x02
+		c_hardwareMode = 0x01,
+		c_primaryDevice = 0x02
 	};
 
 	MxAssignedDevice();
@@ -65,6 +65,9 @@ public:
 	inline MxAssignedDevice* GetAssignedDevice() { return this->m_assignedDevice; };
 	inline IDirect3D2* GetDirect3D() { return this->m_pDirect3d; }
 	inline IDirect3DDevice2* GetDirect3DDevice() { return this->m_pDirect3dDevice; }
+
+	// SYNTHETIC: LEGO1 0x1009b120
+	// MxDirect3D::`scalar deleting destructor'
 
 private:
 	MxAssignedDevice* m_assignedDevice;  // 0x880

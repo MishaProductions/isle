@@ -23,8 +23,11 @@ public:
 
 	MxResult Init();
 
+	// SYNTHETIC: LEGO1 0x100b8540
+	// MxMediaManager::`scalar deleting destructor'
+
 protected:
-	MxPresenterList* m_presenters;
+	MxPresenterList* m_presenters;       // 0x8
 	MxThread* m_thread;                  // 0xc
 	MxCriticalSection m_criticalSection; // 0x10
 };

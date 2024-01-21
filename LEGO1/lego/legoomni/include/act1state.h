@@ -22,12 +22,18 @@ public:
 		return !strcmp(p_name, Act1State::ClassName()) || LegoState::IsA(p_name);
 	};
 
+	virtual MxBool SetFlag() override;                                      // vtable+0x18
+	virtual MxResult VTable0x1c(LegoFileStream* p_legoFileStream) override; // vtable+0x1c
+
 	inline void SetUnknown18(MxU32 p_unk0x18) { m_unk0x18 = p_unk0x18; }
 	inline MxU32 GetUnknown18() { return m_unk0x18; }
 	inline void SetUnknown21(MxS16 p_unk0x21) { m_unk0x21 = p_unk0x21; }
 	inline MxS16 GetUnknown21() { return m_unk0x21; }
 
 	void FUN_10034d00();
+
+	// SYNTHETIC: LEGO1 0x10033960
+	// Act1State::`scalar deleting destructor'
 
 protected:
 	undefined m_unk0x8[0x10]; // 0x8

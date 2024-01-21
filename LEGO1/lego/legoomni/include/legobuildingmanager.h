@@ -10,6 +10,8 @@ public:
 	LegoBuildingManager();
 	virtual ~LegoBuildingManager() override;
 
+	virtual MxResult Tickle() override; // vtable+0x08
+
 	// FUNCTION: LEGO1 0x1002f930
 	inline virtual const char* ClassName() const override // vtable+0x0c
 	{
@@ -20,6 +22,9 @@ public:
 	__declspec(dllexport) static void configureLegoBuildingManager(MxS32);
 
 	void FUN_1002fa00();
+
+	// SYNTHETIC: LEGO1 0x1002f940
+	// LegoBuildingManager::`scalar deleting destructor'
 
 private:
 	void Init();

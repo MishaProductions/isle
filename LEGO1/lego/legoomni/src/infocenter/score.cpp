@@ -2,6 +2,7 @@
 
 #include "ambulancemissionstate.h"
 #include "gifmanager.h"
+#include "jukebox.h"
 #include "legocontrolmanager.h"
 #include "legogamestate.h"
 #include "legoinputmanager.h"
@@ -90,10 +91,10 @@ MxLong Score::Notify(MxParam& p_param)
 				DeleteScript(); // Shutting down
 			ret = 1;
 			break;
-		case TYPE17:
+		case c_notificationType17:
 			ret = FUN_100016d0((MxType17NotificationParam&) p_param);
 			break;
-		case MXTRANSITIONMANAGER_TRANSITIONENDED:
+		case c_notificationTransitioned:
 			DeleteObjects(g_infoscorScript, 7, 9);
 			if (m_unk0xf8)
 				GameState()->HandleAction(m_unk0xf8);
@@ -116,10 +117,10 @@ MxLong Score::FUN_10001510(MxEndActionNotificationParam& p_param)
 		switch (action->GetObjectId()) {
 		case 10:
 			m_unk0xf8 = 0x38;
-			TransitionManager()->StartTransition(MxTransitionManager::PIXELATION, 0x32, 0, 0);
+			TransitionManager()->StartTransition(MxTransitionManager::e_pixelation, 0x32, 0, 0);
 			break;
 		case 0x1f5:
-			PlayMusic(11);
+			PlayMusic(JukeBox::e_informationCenter);
 			m_state->SetTutorialFlag(FALSE);
 		}
 	}
@@ -146,9 +147,9 @@ void Score::VTable0x50()
 		Start(&action);
 	}
 	else
-		PlayMusic(11);
+		PlayMusic(JukeBox::e_informationCenter);
 
-	FUN_10015820(0, 7);
+	FUN_10015820(FALSE, LegoOmni::c_disableInput | LegoOmni::c_disable3d | LegoOmni::c_clearScreen);
 }
 
 // FUNCTION: LEGO1 0x100016d0
@@ -161,12 +162,12 @@ MxLong Score::FUN_100016d0(MxType17NotificationParam& p_param)
 		case 1:
 			m_unk0xf8 = 2;
 			DeleteScript();
-			TransitionManager()->StartTransition(MxTransitionManager::PIXELATION, 0x32, 0, 0);
+			TransitionManager()->StartTransition(MxTransitionManager::e_pixelation, 0x32, 0, 0);
 			break;
 		case 2:
 			m_unk0xf8 = 3;
 			DeleteScript();
-			TransitionManager()->StartTransition(MxTransitionManager::PIXELATION, 0x32, 0, 0);
+			TransitionManager()->StartTransition(MxTransitionManager::e_pixelation, 0x32, 0, 0);
 			break;
 		case 3: {
 			LegoInputManager* im = InputManager();
@@ -228,8 +229,7 @@ void Score::VTable0x68(MxBool p_add)
 // FUNCTION: LEGO1 0x100019d0
 void Score::Paint()
 {
-	GifManager* gm = GetGifManager();
-	GifData* gd = gm->Get("bigcube.gif");
+	GifData* gd = GetGifManager()->Get("bigcube.gif");
 
 	if (gd) {
 		RaceState* l78 = (RaceState*) GameState()->GetState("JetskiRaceState");

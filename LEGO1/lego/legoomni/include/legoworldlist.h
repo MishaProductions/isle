@@ -26,6 +26,9 @@ public:
 	{
 		return p_a == p_b ? 0 : p_a < p_b ? -1 : 1;
 	}; // vtable+0x14
+
+	// SYNTHETIC: LEGO1 0x10059a00
+	// LegoWorldList::`scalar deleting destructor'
 };
 
 // VTABLE: LEGO1 0x100d75b8
@@ -40,6 +43,24 @@ class LegoWorldListCursor : public MxPtrListCursor<LegoWorld> {
 public:
 	LegoWorldListCursor(LegoWorldList* p_list) : MxPtrListCursor<LegoWorld>(p_list){};
 };
+
+// SYNTHETIC: LEGO1 0x1003e870
+// LegoWorldListCursor::`scalar deleting destructor'
+
+// FUNCTION: LEGO1 0x1003e8e0
+// MxPtrListCursor<LegoWorld>::~MxPtrListCursor<LegoWorld>
+
+// SYNTHETIC: LEGO1 0x1003e930
+// MxListCursor<LegoWorld *>::`scalar deleting destructor'
+
+// SYNTHETIC: LEGO1 0x1003e9a0
+// MxPtrListCursor<LegoWorld>::`scalar deleting destructor'
+
+// FUNCTION: LEGO1 0x1003ea10
+// MxListCursor<LegoWorld *>::~MxListCursor<LegoWorld *>
+
+// FUNCTION: LEGO1 0x1003ea60
+// LegoWorldListCursor::~LegoWorldListCursor
 
 // TEMPLATE: LEGO1 0x100598f0
 // MxCollection<LegoWorld *>::Compare
@@ -64,17 +85,5 @@ public:
 
 // SYNTHETIC: LEGO1 0x10059be0
 // MxPtrList<LegoWorld>::`scalar deleting destructor'
-
-// SYNTHETIC: LEGO1 0x1003e870
-// LegoWorldListCursor::`scalar deleting destructor'
-
-// FUNCTION: LEGO1 0x1003e8e0
-// MxPtrListCursor<LegoWorld>::~MxPtrListCursor<LegoWorld>
-
-// FUNCTION: LEGO1 0x1003ea10
-// MxListCursor<LegoWorld *>::~MxListCursor<LegoWorld *>
-
-// FUNCTION: LEGO1 0x1003ea60
-// LegoWorldListCursor::~LegoWorldListCursor
 
 #endif // LEGOWORLDLIST_H

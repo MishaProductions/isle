@@ -21,6 +21,11 @@ public:
 	{
 		return !strcmp(p_name, RadioState::ClassName()) || LegoState::IsA(p_name);
 	}
+
+	virtual MxBool VTable0x14() override; // vtable+0x14
+
+	// SYNTHETIC: LEGO1 0x1002d020
+	// RadioState::`scalar deleting destructor'
 };
 
 #endif // RADIOSTATE_H

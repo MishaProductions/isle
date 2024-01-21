@@ -43,7 +43,8 @@ class MatchInfo:
             return None
 
         ctype = self.compare_type.name if self.compare_type is not None else "UNK"
-        return f"{self.name} ({ctype})"
+        name = repr(self.name) if ctype == "STRING" else self.name
+        return f"{name} ({ctype})"
 
 
 def matchinfo_factory(_, row):
@@ -81,17 +82,29 @@ class CompareDb:
 
         return [string for (string,) in cur.fetchall()]
 
-    def get_one_function(self, addr: int) -> Optional[MatchInfo]:
+    def get_matches(self) -> Optional[MatchInfo]:
         cur = self._db.execute(
             """SELECT compare_type, orig_addr, recomp_addr, name, size
             FROM `symbols`
-            WHERE compare_type = ?
-            AND orig_addr = ?
+            WHERE orig_addr IS NOT NULL
             AND recomp_addr IS NOT NULL
             AND should_skip IS FALSE
             ORDER BY orig_addr
             """,
-            (SymbolType.FUNCTION.value, addr),
+        )
+        cur.row_factory = matchinfo_factory
+
+        return cur.fetchall()
+
+    def get_one_match(self, addr: int) -> Optional[MatchInfo]:
+        cur = self._db.execute(
+            """SELECT compare_type, orig_addr, recomp_addr, name, size
+            FROM `symbols`
+            WHERE orig_addr = ?
+            AND recomp_addr IS NOT NULL
+            AND should_skip IS FALSE
+            """,
+            (addr,),
         )
         cur.row_factory = matchinfo_factory
         return cur.fetchone()
@@ -118,7 +131,7 @@ class CompareDb:
         cur.row_factory = matchinfo_factory
         return cur.fetchone()
 
-    def get_matches(self, compare_type: SymbolType) -> List[MatchInfo]:
+    def get_matches_by_type(self, compare_type: SymbolType) -> List[MatchInfo]:
         cur = self._db.execute(
             """SELECT compare_type, orig_addr, recomp_addr, name, size
             FROM `symbols`
@@ -157,6 +170,12 @@ class CompareDb:
 
     def _match_on(self, compare_type: SymbolType, addr: int, name: str) -> bool:
         # Update the compare_type here too since the marker tells us what we should do
+
+        # Truncate the name to 255 characters. It will not be possible to match a name
+        # longer than that because MSVC truncates the debug symbols to this length.
+        # See also: warning C4786.
+        name = name[:255]
+
         logger.debug("Looking for %s %s", compare_type.name.lower(), name)
         cur = self._db.execute(
             """UPDATE `symbols`
@@ -197,3 +216,5 @@ class CompareDb:
         if not did_match:
             escaped = repr(value)
             logger.error("Failed to find string: %s", escaped)
+
+        return did_match

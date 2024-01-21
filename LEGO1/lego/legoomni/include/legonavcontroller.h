@@ -37,7 +37,8 @@ public:
 	);
 
 	LegoNavController();
-	virtual ~LegoNavController() override; // vtable+0x0
+	virtual ~LegoNavController() override;            // vtable+0x0
+	virtual MxLong Notify(MxParam& p_param) override; // vtable+0x4
 
 	// FUNCTION: LEGO1 0x10054b80
 	inline const char* ClassName() const override // vtable+0xc
@@ -60,6 +61,9 @@ public:
 	float CalculateNewVel(float p_targetVel, float p_currentVel, float p_accel, float p_time);
 
 	inline void SetTrackDefaultParams(MxBool p_trackDefault) { m_trackDefault = p_trackDefault; }
+
+	// SYNTHETIC: LEGO1 0x10054c10
+	// LegoNavController::`scalar deleting destructor'
 
 private:
 	int m_hMax;

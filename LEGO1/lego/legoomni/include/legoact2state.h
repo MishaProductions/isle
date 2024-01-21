@@ -19,6 +19,11 @@ public:
 	{
 		return !strcmp(p_name, LegoAct2State::ClassName()) || LegoState::IsA(p_name);
 	}
+
+	virtual MxBool VTable0x14() override; // vtable+0x14
+
+	// SYNTHETIC: LEGO1 0x1000e040
+	// LegoAct2State::`scalar deleting destructor'
 };
 
 #endif // LEGOACT2STATE_H

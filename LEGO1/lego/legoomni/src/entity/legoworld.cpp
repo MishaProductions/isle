@@ -11,7 +11,11 @@
 #include "mxomni.h"
 #include "mxticklemanager.h"
 
-DECOMP_SIZE_ASSERT(LegoWorld, 0xf8);
+DECOMP_SIZE_ASSERT(LegoWorld, 0xf8)
+DECOMP_SIZE_ASSERT(LegoEntityList, 0x18)
+DECOMP_SIZE_ASSERT(LegoEntityListCursor, 0x10)
+DECOMP_SIZE_ASSERT(MxCoreList, 0x18)
+DECOMP_SIZE_ASSERT(MxCoreListCursor, 0x10)
 
 // STUB: LEGO1 0x1001ca40
 LegoWorld::LegoWorld() : m_list0x68(TRUE)
@@ -40,29 +44,43 @@ LegoWorld::~LegoWorld()
 	// TODO
 }
 
-// STUB: LEGO1 0x1001e0b0
+// FUNCTION: LEGO1 0x1001e0b0
 MxResult LegoWorld::Create(MxDSAction& p_dsAction)
 {
 	MxEntity::Create(p_dsAction);
 
-	// TODO: Intitialize lists
+	m_entityList = new LegoEntityList(TRUE);
 
-	if (VTable0x54()) {
-		if (p_dsAction.GetFlags() & MxDSAction::Flag_Enabled) {
-			if (GetCurrentWorld()) {
-				GetCurrentWorld()->VTable0x68(0);
-			}
+	if (!m_entityList)
+		return FAILURE;
 
-			SetCurrentWorld(this);
-			ControlManager()->FUN_10028df0(&m_list0xb8);
+	m_coreList = new MxCoreList(TRUE);
+
+	if (!m_coreList)
+		return FAILURE;
+
+	if (!VTable0x54())
+		return FAILURE;
+
+	if (p_dsAction.GetFlags() & MxDSAction::c_enabled) {
+		if (GetCurrentWorld()) {
+			GetCurrentWorld()->VTable0x68(0);
 		}
 
-		SetIsWorldActive(TRUE);
-		m_unk0xec = -1;
-
-		return SUCCESS;
+		SetCurrentWorld(this);
+		ControlManager()->FUN_10028df0(&m_list0xb8);
 	}
-	return FAILURE;
+
+	SetIsWorldActive(TRUE);
+	m_unk0xec = -1;
+
+	return SUCCESS;
+}
+
+// STUB: LEGO1 0x1001e9d0
+void LegoWorld::Destroy(MxBool p_fromDestructor)
+{
+	// TODO
 }
 
 // FUNCTION: LEGO1 0x1001f5e0
@@ -141,6 +159,12 @@ void LegoWorld::VTable0x58(MxCore* p_object)
 void LegoWorld::EndAction(MxCore* p_object)
 {
 	OutputDebugString("LegoWorld::EndAction STUB\n");
+}
+
+// STUB: LEGO1 0x100213a0
+MxPresenter* LegoWorld::FindPresenter(const char* p_presenter, const char* p_name)
+{
+	return NULL;
 }
 
 // STUB: LEGO1 0x10021a70

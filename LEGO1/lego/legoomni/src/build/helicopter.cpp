@@ -3,6 +3,7 @@
 #include "act1state.h"
 #include "act3.h"
 #include "isle.h"
+#include "jukebox.h"
 #include "legoanimationmanager.h"
 #include "legocontrolmanager.h"
 #include "legogamestate.h"
@@ -99,10 +100,10 @@ MxU32 Helicopter::VTable0xcc()
 		AnimationManager()->FUN_10064670(FALSE);
 		VTable0xe8(0x29, TRUE, 7);
 		((Isle*) GetCurrentWorld())->SetUnknown13c(0x3c);
-		FUN_10015820(1, 0);
-		TransitionManager()->StartTransition(MxTransitionManager::PIXELATION, 50, FALSE, TRUE);
+		FUN_10015820(TRUE, 0);
+		TransitionManager()->StartTransition(MxTransitionManager::e_pixelation, 50, FALSE, TRUE);
 		SetUnknownDC(4);
-		PlayMusic(9);
+		PlayMusic(JukeBox::e_jail);
 		break;
 	case 1:
 		m_script = *g_act2mainScript;
@@ -112,7 +113,7 @@ MxU32 Helicopter::VTable0xcc()
 		break;
 	}
 	VTable0xe0();
-	InvokeAction(ExtraActionType_start, m_script, 0x15, NULL);
+	InvokeAction(Extra::ActionType::e_start, m_script, 0x15, NULL);
 	GetCurrentAction().SetObjectId(-1);
 	ControlManager()->Register(this);
 	return 1;
@@ -139,7 +140,7 @@ MxU32 Helicopter::VTable0xd4(MxType17NotificationParam& p_param)
 		case 0x17:
 			if (*g_act3Script == script) {
 				((Act3*) GetCurrentWorld())->SetUnkown4270(2);
-				TransitionManager()->StartTransition(MxTransitionManager::PIXELATION, 50, FALSE, FALSE);
+				TransitionManager()->StartTransition(MxTransitionManager::e_pixelation, 50, FALSE, FALSE);
 			}
 			else if (m_state->GetUnkown8() != 0)
 				break;
@@ -155,7 +156,7 @@ MxU32 Helicopter::VTable0xd4(MxType17NotificationParam& p_param)
 				state->SetUnknown18(4);
 				m_state->SetUnknown8(1);
 				m_world->FUN_1001fc80(this);
-				InvokeAction(ExtraActionType_start, script, 0x20, NULL);
+				InvokeAction(Extra::ActionType::e_start, script, 0x20, NULL);
 				SetUnknownDC(0);
 			}
 			ret = 1;
@@ -167,7 +168,7 @@ MxU32 Helicopter::VTable0xd4(MxType17NotificationParam& p_param)
 			if (m_state->GetUnkown8() == 2) {
 				m_state->SetUnknown8(3);
 				m_world->FUN_1001fc80(this);
-				InvokeAction(ExtraActionType_start, script, 0x21, NULL);
+				InvokeAction(Extra::ActionType::e_start, script, 0x21, NULL);
 				SetUnknownDC(4);
 			}
 			ret = 1;
@@ -203,7 +204,7 @@ MxU32 Helicopter::VTable0xd4(MxType17NotificationParam& p_param)
 		case 0x1c:
 			if (GameState()->GetUnknown10() == 0) {
 				((Isle*) GetCurrentWorld())->SetUnknown13c(2);
-				TransitionManager()->StartTransition(MxTransitionManager::PIXELATION, 50, FALSE, FALSE);
+				TransitionManager()->StartTransition(MxTransitionManager::e_pixelation, 50, FALSE, FALSE);
 				VTable0xe4();
 			}
 			ret = 1;

@@ -117,10 +117,10 @@ MxLong Isle::Notify(MxParam& p_param)
 				break;
 			}
 			break;
-		case TYPE17:
+		case c_notificationType17:
 			result = HandleType17Notification(p_param);
 			break;
-		case TYPE18:
+		case c_notificationType18:
 			switch (m_act1state->GetUnknown18()) {
 			case 4:
 				result = GetCurrentVehicle()->Notify(p_param);
@@ -133,13 +133,13 @@ MxLong Isle::Notify(MxParam& p_param)
 				break;
 			}
 			break;
-		case TYPE19:
+		case c_notificationType19:
 			result = HandleType19Notification(p_param);
 			break;
-		case TYPE20:
+		case c_notificationType20:
 			VTable0x68(TRUE);
 			break;
-		case MXTRANSITIONMANAGER_TRANSITIONENDED:
+		case c_notificationTransitioned:
 			result = HandleTransitionEnd();
 			break;
 		}
@@ -168,7 +168,7 @@ void Isle::VTable0x50()
 		FUN_1003ef00(TRUE);
 		FUN_10032620();
 		m_act1state->FUN_10034d00();
-		FUN_10015820(0, 7);
+		FUN_10015820(FALSE, LegoOmni::c_disableInput | LegoOmni::c_disable3d | LegoOmni::c_clearScreen);
 	}
 }
 
