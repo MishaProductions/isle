@@ -19,8 +19,10 @@
 #include "mxdsfile.h"
 #include "mxomnicreateflags.h"
 #include "mxomnicreateparam.h"
+#include "mxstreamer.h"
 #include "mxticklemanager.h"
 #include "mxtransitionmanager.h"
+#include "viewmanager/viewmanager.h"
 
 DECOMP_SIZE_ASSERT(LegoWorldList, 0x18);
 DECOMP_SIZE_ASSERT(LegoWorldListCursor, 0x10);
@@ -171,21 +173,27 @@ LegoNavController* NavController()
 }
 
 // FUNCTION: LEGO1 0x10015790
-IslePathActor* GetCurrentVehicle()
+IslePathActor* CurrentVehicle()
 {
 	return LegoOmni::GetInstance()->GetCurrentVehicle();
 }
 
 // FUNCTION: LEGO1 0x100157a0
-LegoWorld* GetCurrentWorld()
+LegoWorld* CurrentWorld()
 {
-	return LegoOmni::GetInstance()->GetCurrentOmniWorld();
+	return LegoOmni::GetInstance()->GetCurrentWorld();
 }
 
 // FUNCTION: LEGO1 0x100157b0
-LegoUnkSaveDataWriter* GetUnkSaveDataWriter()
+LegoUnkSaveDataWriter* UnkSaveDataWriter()
 {
 	return LegoOmni::GetInstance()->GetUnkSaveDataWriter();
+}
+
+// FUNCTION: LEGO1 0x100157c0
+ViewManager* GetViewManager()
+{
+	return VideoManager()->Get3DManager()->GetLego3DView()->GetViewManager();
 }
 
 // FUNCTION: LEGO1 0x100157e0
@@ -219,9 +227,9 @@ void FUN_10015860(const char*, MxU8)
 }
 
 // FUNCTION: LEGO1 0x100158c0
-LegoEntity* FindEntityByAtomIdOrEntityId(const MxAtomId& p_atom, MxS32 p_entityid)
+LegoWorld* FindWorld(const MxAtomId& p_atom, MxS32 p_entityid)
 {
-	return LegoOmni::GetInstance()->FindByEntityIdOrAtomId(p_atom, p_entityid);
+	return LegoOmni::GetInstance()->FindWorld(p_atom, p_entityid);
 }
 
 // FUNCTION: LEGO1 0x100158e0
@@ -233,7 +241,7 @@ MxDSAction& GetCurrentAction()
 // FUNCTION: LEGO1 0x100158f0
 void SetCurrentWorld(LegoWorld* p_world)
 {
-	LegoOmni::GetInstance()->SetWorld(p_world);
+	LegoOmni::GetInstance()->SetCurrentWorld(p_world);
 }
 
 // FUNCTION: LEGO1 0x10015900
@@ -256,8 +264,9 @@ void PlayMusic(MxU32 p_index)
 // FUNCTION: LEGO1 0x100159c0
 void SetIsWorldActive(MxBool p_isWorldActive)
 {
-	if (!p_isWorldActive)
+	if (!p_isWorldActive) {
 		LegoOmni::GetInstance()->GetInputManager()->SetCamera(NULL);
+	}
 	g_isWorldActive = p_isWorldActive;
 }
 
@@ -522,17 +531,20 @@ MxResult LegoOmni::Create(MxOmniCreateParam& p_param)
 	p_param.CreateFlags().CreateSoundManager(FALSE);
 	p_param.CreateFlags().CreateTickleManager(FALSE);
 
-	if (!(m_tickleManager = new MxTickleManager()))
+	if (!(m_tickleManager = new MxTickleManager())) {
 		return FAILURE;
+	}
 
-	if (MxOmni::Create(p_param) != SUCCESS)
+	if (MxOmni::Create(p_param) != SUCCESS) {
 		return FAILURE;
+	}
 
 	m_objectFactory = new LegoObjectFactory();
-	if (m_objectFactory == NULL)
+	if (m_objectFactory == NULL) {
 		return FAILURE;
+	}
 
-	if (m_soundManager = new LegoSoundManager()) {
+	if ((m_soundManager = new LegoSoundManager())) {
 		if (m_soundManager->Create(10, 0) != SUCCESS) {
 			delete m_soundManager;
 			m_soundManager = NULL;
@@ -540,14 +552,14 @@ MxResult LegoOmni::Create(MxOmniCreateParam& p_param)
 		}
 	}
 
-	if (m_videoManager = new LegoVideoManager()) {
+	if ((m_videoManager = new LegoVideoManager())) {
 		if (m_videoManager->Create(p_param.GetVideoParam(), 100, 0) != SUCCESS) {
 			delete m_videoManager;
 			m_videoManager = NULL;
 		}
 	}
 
-	if (m_inputMgr = new LegoInputManager()) {
+	if ((m_inputMgr = new LegoInputManager())) {
 		if (m_inputMgr->Create(p_param.GetWindowHandle()) != SUCCESS) {
 			delete m_inputMgr;
 			m_inputMgr = NULL;
@@ -576,7 +588,7 @@ MxResult LegoOmni::Create(MxOmniCreateParam& p_param)
 				if (m_transitionManager->GetDDrawSurfaceFromVideoManager() == SUCCESS) {
 					m_notificationManager->Register(this);
 					SetAppCursor(1);
-					m_gameState->SetSomeEnumState(0);
+					m_gameState->SetCurrentAct(LegoGameState::e_act1);
 					return SUCCESS;
 				}
 			}
@@ -605,66 +617,127 @@ void LegoOmni::AddWorld(LegoWorld* p_world)
 	m_worldList->Append(p_world);
 }
 
-// STUB: LEGO1 0x1005af10
-void LegoOmni::RemoveWorld(const MxAtomId&, MxLong)
-{OutputDebugString("LegoOmni::RemoveWorld stub\n");
-	// TODO
+// FUNCTION: LEGO1 0x1005adb0
+void LegoOmni::DeleteWorld(LegoWorld* p_world)
+{
+	if (m_worldList) {
+		LegoWorldListCursor cursor(m_worldList);
+
+		if (cursor.Find(p_world)) {
+			cursor.Detach();
+
+			if (m_currentWorld == p_world) {
+				m_currentWorld = NULL;
+			}
+
+			delete p_world;
+		}
+	}
+}
+
+// FUNCTION: LEGO1 0x1005af10
+void LegoOmni::RemoveWorld(const MxAtomId& p_atom, MxLong p_objectId)
+{
+	if (m_worldList) {
+		LegoWorldListCursor a(m_worldList);
+		LegoWorldListCursor b(m_worldList);
+		LegoWorld* world;
+
+		a.Head();
+		while (a.Current(world)) {
+			b = a;
+			b.Next();
+
+			if ((p_objectId == -1 || world->GetEntityId() == p_objectId) &&
+				(!p_atom.GetInternal() || world->GetAtom() == p_atom)) {
+				a.Detach();
+				delete world;
+			}
+
+			a = b;
+		}
+	}
 }
 
 // FUNCTION: LEGO1 0x1005b0c0
-LegoEntity* LegoOmni::FindByEntityIdOrAtomId(const MxAtomId& p_atom, MxS32 p_entityid)
+LegoWorld* LegoOmni::FindWorld(const MxAtomId& p_atom, MxS32 p_entityid)
 {
 	if (m_worldList) {
-		LegoWorld* world;
 		LegoWorldListCursor cursor(m_worldList);
+		LegoWorld* world;
 
 		while (cursor.Next(world)) {
 			if ((p_entityid == -1 || world->GetEntityId() == p_entityid) &&
-				(!p_atom.GetInternal() || world->GetAtom() == p_atom))
+				(!p_atom.GetInternal() || world->GetAtom() == p_atom)) {
 				return world;
+			}
 		}
 	}
 
 	return NULL;
 }
 
-// STUB: LEGO1 0x1005b1d0
+// FUNCTION: LEGO1 0x1005b1d0
 void LegoOmni::DeleteObject(MxDSAction& p_dsAction)
-{OutputDebugString("LegoOmni::DeleteObject stub\n");
-	// TODO
+{
+	if (p_dsAction.GetAtomId().GetInternal() != NULL) {
+		LegoWorld* world = FindWorld(p_dsAction.GetAtomId(), p_dsAction.GetObjectId());
+		if (world) {
+			DeleteWorld(world);
+			return;
+		}
+
+		if (m_currentWorld != NULL) {
+			MxCore* entity = m_currentWorld->Find(p_dsAction.GetAtomId(), p_dsAction.GetObjectId());
+			if (entity) {
+				m_currentWorld->Remove(entity);
+
+				if (entity->IsA("MxPresenter")) {
+					Streamer()->FUN_100b98f0(((MxPresenter*) entity)->GetAction());
+					((MxPresenter*) entity)->EndAction();
+				}
+				else {
+					delete entity;
+				}
+				return;
+			}
+		}
+	}
+	MxOmni::DeleteObject(p_dsAction);
 }
 
 // FUNCTION: LEGO1 0x1005b2f0
-MxEntity* LegoOmni::FindWorld(const char* p_id, MxS32 p_entityId, MxPresenter* p_presenter)
+MxEntity* LegoOmni::AddToWorld(const char* p_id, MxS32 p_entityId, MxPresenter* p_presenter)
 {
-	LegoWorld* foundEntity = NULL;
+	LegoWorld* world = NULL;
+
 	if (strcmpi(p_id, g_current)) {
-		foundEntity = (LegoWorld*) FindByEntityIdOrAtomId(MxAtomId(p_id, e_lowerCase2), p_entityId);
+		world = FindWorld(MxAtomId(p_id, e_lowerCase2), p_entityId);
 	}
 	else {
-		foundEntity = this->m_currentWorld;
+		world = this->m_currentWorld;
 	}
 
-	if (foundEntity != NULL) {
-		foundEntity->VTable0x58(p_presenter);
+	if (world != NULL) {
+		world->Add(p_presenter);
 	}
 
-	return foundEntity;
+	return world;
 }
 
 // FUNCTION: LEGO1 0x1005b3a0
 void LegoOmni::NotifyCurrentEntity(MxNotificationParam* p_param)
 {
-	OutputDebugString("notify current entity\n");
-	if (m_currentWorld)
+	if (m_currentWorld) {
 		NotificationManager()->Send(m_currentWorld, p_param);
+	}
 }
 
 // FUNCTION: LEGO1 0x1005b3c0
 MxBool LegoOmni::DoesEntityExist(MxDSAction& p_dsAction)
 {
 	if (MxOmni::DoesEntityExist(p_dsAction)) {
-		if (FindByEntityIdOrAtomId(p_dsAction.GetAtomId(), p_dsAction.GetObjectId()) == NULL) {
+		if (FindWorld(p_dsAction.GetAtomId(), p_dsAction.GetObjectId()) == NULL) {
 			return TRUE;
 		}
 	}
@@ -674,11 +747,11 @@ MxBool LegoOmni::DoesEntityExist(MxDSAction& p_dsAction)
 // FUNCTION: LEGO1 0x1005b400
 MxS32 LegoOmni::GetCurrPathInfo(LegoPathBoundary** p_path, MxS32& p_value)
 {
-	if (GetCurrentWorld() == NULL) {
-		return -1;
+	if (::CurrentWorld() == NULL) {
+		return FAILURE;
 	}
 
-	return GetCurrentWorld()->GetCurrPathInfo(p_path, p_value);
+	return ::CurrentWorld()->GetCurrPathInfo(p_path, p_value);
 }
 
 // FUNCTION: LEGO1 0x1005b4f0
@@ -707,8 +780,9 @@ void LegoOmni::FUN_1005b4f0(MxBool p_disable, MxU16 p_flags)
 // FUNCTION: LEGO1 0x1005b560
 void LegoOmni::CreateBackgroundAudio()
 {
-	if (m_bkgAudioManager)
+	if (m_bkgAudioManager) {
 		m_bkgAudioManager->Create(*g_jukeboxScript, 100);
+	}
 }
 
 // FUNCTION: LEGO1 0x1005b580

@@ -5,25 +5,24 @@
 // FUNCTION: LEGO1 0x100046a0
 GasStation::GasStation()
 {
-	this->m_unk0xf8 = 0;
-	this->m_unk0x100 = 0;
-	this->m_unk0xfc = 0;
-	this->m_unk0x108 = 0;
-	this->m_unk0x104 = 0;
-	this->m_unk0x114 = 0;
-	this->m_unk0x106 = 0;
-	this->m_unk0x10c = 0;
-	this->m_unk0x115 = 0;
-	this->m_unk0x110 = 0;
+	m_unk0xf8 = 0;
+	m_unk0x100 = 0;
+	m_unk0xfc = 0;
+	m_unk0x108 = 0;
+	m_unk0x104 = 0;
+	m_unk0x114 = 0;
+	m_unk0x106 = 0;
+	m_unk0x10c = 0;
+	m_unk0x115 = 0;
+	m_unk0x110 = 0;
 
 	NotificationManager()->Register(this);
 }
 
-// STUB: LEGO1 0x10004770
+// FUNCTION: LEGO1 0x10004770
 MxBool GasStation::VTable0x5c()
 {
-	// TODO
-	return FALSE;
+	return TRUE;
 }
 
 // STUB: LEGO1 0x100048c0
@@ -48,13 +47,13 @@ MxLong GasStation::Notify(MxParam& p_param)
 }
 
 // STUB: LEGO1 0x10004b30
-void GasStation::VTable0x50()
+void GasStation::ReadyWorld()
 {
 	// TODO
 }
 
 // STUB: LEGO1 0x10005c40
-void GasStation::VTable0x68(MxBool p_add)
+void GasStation::Enable(MxBool p_enable)
 {
 	// TODO
 }

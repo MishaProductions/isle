@@ -8,7 +8,7 @@
 class LegoPartPresenter : public MxMediaPresenter {
 public:
 	// FUNCTION: LEGO1 0x1000cf70
-	inline const char* ClassName() const override // vtable+0xc
+	inline const char* ClassName() const override // vtable+0x0c
 	{
 		// STRING: LEGO1 0x100f05d8
 		return "LegoPartPresenter";
@@ -20,11 +20,11 @@ public:
 		return !strcmp(p_name, LegoPartPresenter::ClassName()) || MxMediaPresenter::IsA(p_name);
 	}
 
-	virtual void ReadyTickle() override;      // vtable+0x18
-	virtual MxResult AddToManager() override; // vtable+0x34
-	virtual void Destroy() override;          // vtable+0x38
+	void ReadyTickle() override;      // vtable+0x18
+	MxResult AddToManager() override; // vtable+0x34
+	void Destroy() override;          // vtable+0x38
 
-	__declspec(dllexport) static void configureLegoPartPresenter(MxS32, MxS32);
+	static void configureLegoPartPresenter(MxS32, MxS32);
 
 	// SYNTHETIC: LEGO1 0x1000d060
 	// LegoPartPresenter::`scalar deleting destructor'

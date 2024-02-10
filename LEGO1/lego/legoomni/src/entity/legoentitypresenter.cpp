@@ -11,7 +11,7 @@ LegoEntityPresenter::LegoEntityPresenter()
 {
 	Init();
 
-		{
+	{
 		char cad[512];
 		sprintf(cad, "LegoEntityPresenter::LegoEntityPresenter\n");
 		OutputDebugString(cad);
@@ -62,7 +62,7 @@ MxResult LegoEntityPresenter::StartAction(MxStreamController* p_controller, MxDS
 		VideoManager()->RegisterPresenter(*this);
 	}
 
-		{
+	{
 		char cad[512];
 		sprintf(cad, "LegoEntityPresenter::StartAction\n");
 		OutputDebugString(cad);
@@ -74,12 +74,7 @@ MxResult LegoEntityPresenter::StartAction(MxStreamController* p_controller, MxDS
 // FUNCTION: LEGO1 0x100536c0
 void LegoEntityPresenter::ReadyTickle()
 {
-	{
-		char cad[512];
-		sprintf(cad, "LegoEntityPresenter::ReadyTickle\n");
-		OutputDebugString(cad);
-	}
-	if (GetCurrentWorld()) {
+	if (CurrentWorld()) {
 		m_entity = (LegoEntity*) MxPresenter::CreateEntity("LegoEntity");
 		if (m_entity) {
 			m_entity->Create(*m_action);

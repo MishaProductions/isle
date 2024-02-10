@@ -52,10 +52,11 @@ void LegoEntity::Destroy(MxBool p_fromDestructor)
 {
 	if (m_roi) {
 		if (m_flags & c_bit1) {
-			if (m_roi->GetUnknown0x104() == this)
+			if (m_roi->GetUnknown0x104() == this) {
 				m_roi->SetUnknown0x104(NULL);
+			}
 
-			GetUnkSaveDataWriter()->FUN_10083db0(m_roi);
+			UnkSaveDataWriter()->FUN_10083db0(m_roi);
 		}
 		else {
 			VideoManager()->Get3DManager()->GetLego3DView()->Remove(*m_roi);
@@ -70,9 +71,9 @@ void LegoEntity::Destroy(MxBool p_fromDestructor)
 // FUNCTION: LEGO1 0x10010880
 void LegoEntity::SetWorld()
 {
-	LegoWorld* world = GetCurrentWorld();
+	LegoWorld* world = CurrentWorld();
 	if (world != NULL && world != (LegoWorld*) this) {
-		world->VTable0x58(this);
+		world->Add(this);
 	}
 }
 
@@ -91,10 +92,11 @@ void LegoEntity::SetLocation(Mx3DPointFloat& p_location, Mx3DPointFloat& p_direc
 // FUNCTION: LEGO1 0x10010c30
 void LegoEntity::FUN_10010c30()
 {
-	LegoWorld* world = GetCurrentWorld();
+	LegoWorld* world = CurrentWorld();
 
-	if (m_cameraFlag && world && world->GetCamera() && m_roi)
+	if (m_cameraFlag && world && world->GetCamera() && m_roi) {
 		world->GetCamera()->FUN_100123e0(m_roi->GetLocal2World(), 1);
+	}
 }
 
 // FUNCTION: LEGO1 0x10010e10
@@ -160,6 +162,12 @@ void LegoEntity::VTable0x48()
 void LegoEntity::VTable0x4c()
 {
 	// TODO
+}
+
+// FUNCTION: LEGO1 0x100114e0
+void LegoEntity::FUN_100114e0(MxU8 p_unk0x59)
+{
+	m_unk0x59 = p_unk0x59;
 }
 
 // STUB: LEGO1 0x100114f0

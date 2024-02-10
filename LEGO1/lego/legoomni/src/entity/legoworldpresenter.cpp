@@ -120,8 +120,9 @@ MxResult LegoWorldPresenter::StartAction(MxStreamController* p_controller, MxDSA
 				action->SetOrigin(this);
 				m_list.push_back(presenter);
 			}
-			else if (presenter)
+			else if (presenter) {
 				delete presenter;
+			}
 		}
 
 		VideoManager()->RegisterPresenter(*this);
@@ -185,7 +186,7 @@ void LegoWorldPresenter::VTable0x60(MxPresenter* p_presenter)
 	if (!p_presenter->IsA("LegoAnimPresenter") && !p_presenter->IsA("MxControlPresenter") &&
 		!p_presenter->IsA("MxCompositePresenter")) {
 		p_presenter->SendToCompositePresenter(Lego());
-		((LegoWorld*) m_entity)->VTable0x58(p_presenter);
+		((LegoWorld*) m_entity)->Add(p_presenter);
 	}
 }
 
