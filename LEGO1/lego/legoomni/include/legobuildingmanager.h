@@ -1,6 +1,8 @@
 #ifndef LEGOBUILDINGMANAGER_H
 #define LEGOBUILDINGMANAGER_H
 
+#include "decomp.h"
+#include "misc/legostorage.h"
 #include "mxcore.h"
 
 // VTABLE: LEGO1 0x100d6f50
@@ -20,16 +22,22 @@ public:
 	}
 
 	static void configureLegoBuildingManager(MxS32);
+	static void SetCustomizeAnimFile(const char* p_value);
 
+	void Init();
 	void FUN_1002fa00();
 	void FUN_1002fb30();
+	MxResult Save(LegoStorage* p_storage);
+	MxResult Load(LegoStorage* p_storage);
 	void FUN_10030590();
 
 	// SYNTHETIC: LEGO1 0x1002f940
 	// LegoBuildingManager::`scalar deleting destructor'
 
 private:
-	void Init();
+	static char* g_customizeAnimFile;
+
+	undefined m_unk0x08[0x28]; // 0x08
 };
 
 #endif // LEGOBUILDINGMANAGER_H

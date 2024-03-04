@@ -118,14 +118,6 @@ public:
 	void Reset() { m_match = NULL; }
 	void Prepend(T p_newobj);
 
-	// TODO: Probably shouldn't exist
-	void NextFragment()
-	{
-		if (m_match) {
-			m_match = m_match->GetNext();
-		}
-	}
-
 private:
 	MxList<T>* m_list;       // 0x08
 	MxListEntry<T>* m_match; // 0x0c
@@ -135,7 +127,7 @@ private:
 template <class T>
 class MxPtrListCursor : public MxListCursor<T*> {
 public:
-	MxPtrListCursor(MxPtrList<T>* p_list) : MxListCursor<T*>(p_list){};
+	MxPtrListCursor(MxPtrList<T>* p_list) : MxListCursor<T*>(p_list) {}
 };
 
 template <class T>

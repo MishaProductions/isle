@@ -38,7 +38,7 @@ public:
 // SIZE 0x10
 class LegoWorldListCursor : public MxPtrListCursor<LegoWorld> {
 public:
-	LegoWorldListCursor(LegoWorldList* p_list) : MxPtrListCursor<LegoWorld>(p_list){};
+	LegoWorldListCursor(LegoWorldList* p_list) : MxPtrListCursor<LegoWorld>(p_list) {}
 };
 
 // SYNTHETIC: LEGO1 0x1003e870
@@ -73,6 +73,9 @@ public:
 
 // TEMPLATE: LEGO1 0x100599f0
 // MxPtrList<LegoWorld>::Destroy
+
+// TEMPLATE: LEGO1 0x10059a70
+// MxPtrList<LegoWorld>::~MxPtrList<LegoWorld>
 
 // SYNTHETIC: LEGO1 0x10059ac0
 // MxCollection<LegoWorld *>::`scalar deleting destructor'

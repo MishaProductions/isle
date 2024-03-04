@@ -94,11 +94,7 @@ void LegoEntityPresenter::RepeatingTickle()
 }
 
 // FUNCTION: LEGO1 0x10053730
-void LegoEntityPresenter::SetEntityLocation(
-	Mx3DPointFloat& p_location,
-	Mx3DPointFloat& p_direction,
-	Mx3DPointFloat& p_up
-)
+void LegoEntityPresenter::SetEntityLocation(const Vector3& p_location, const Vector3& p_direction, const Vector3& p_up)
 {
 	if (m_entity) {
 		m_entity->SetLocation(p_location, p_direction, p_up, TRUE);
@@ -108,13 +104,15 @@ void LegoEntityPresenter::SetEntityLocation(
 // FUNCTION: LEGO1 0x10053750
 void LegoEntityPresenter::ParseExtra()
 {
-	char data[512];
-	MxU16 len = m_action->GetExtraLength();
-	if (len) {
-		memcpy(data, m_action->GetExtraData(), len);
-		data[len] = 0;
+	MxU16 extraLength;
+	char* extraData;
+	m_action->GetExtra(extraLength, extraData);
 
-		len &= MAXWORD;
-		m_entity->ParseAction(data);
+	if (extraLength & MAXWORD) {
+		char extraCopy[512];
+		memcpy(extraCopy, extraData, extraLength & MAXWORD);
+		extraCopy[extraLength & MAXWORD] = '\0';
+
+		m_entity->ParseAction(extraCopy);
 	}
 }

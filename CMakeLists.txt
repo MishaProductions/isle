@@ -80,10 +80,6 @@ add_library(Smacker::Smacker STATIC IMPORTED)
 set_property(TARGET Smacker::Smacker PROPERTY IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/3rdparty/smacker/smack.lib")
 set_property(TARGET Smacker::Smacker PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/3rdparty/smacker")
 
-add_library(FLIC::FLIC STATIC IMPORTED)
-set_property(TARGET FLIC::FLIC PROPERTY IMPORTED_LOCATION "${CMAKE_SOURCE_DIR}/3rdparty/flic/flic.lib")
-set_property(TARGET FLIC::FLIC PROPERTY INTERFACE_INCLUDE_DIRECTORIES "${CMAKE_SOURCE_DIR}/3rdparty/flic")
-
 add_library(Vec::Vec INTERFACE IMPORTED)
 target_include_directories(Vec::Vec INTERFACE "${CMAKE_SOURCE_DIR}/3rdparty/vec")
 
@@ -144,10 +140,19 @@ add_library(roi STATIC
 )
 register_lego1_target(roi)
 set_property(TARGET roi PROPERTY ARCHIVE_OUTPUT_NAME "roi$<$<CONFIG:Debug>:d>")
-target_include_directories(roi PRIVATE "${CMAKE_SOURCE_DIR}/LEGO1" "${CMAKE_SOURCE_DIR}/util")
+target_include_directories(roi PRIVATE "${CMAKE_SOURCE_DIR}/LEGO1" "${CMAKE_SOURCE_DIR}/LEGO1/lego/sources" "${CMAKE_SOURCE_DIR}/util")
 target_link_libraries(roi PRIVATE)
 
+add_library(anim STATIC
+  LEGO1/lego/sources/anim/legoanim.cpp
+)
+register_lego1_target(anim)
+set_property(TARGET anim PROPERTY ARCHIVE_OUTPUT_NAME "anim$<$<CONFIG:Debug>:d>")
+target_include_directories(anim PRIVATE "${CMAKE_SOURCE_DIR}/LEGO1/omni/include" "${CMAKE_SOURCE_DIR}/LEGO1" "${CMAKE_SOURCE_DIR}/LEGO1/lego/sources" "${CMAKE_SOURCE_DIR}/util")
+target_link_libraries(anim PRIVATE)
+
 add_library(misc STATIC
+  LEGO1/lego/sources/misc/legocontainer.cpp
   LEGO1/lego/sources/misc/legoimage.cpp
   LEGO1/lego/sources/misc/legostorage.cpp
   LEGO1/lego/sources/misc/legotexture.cpp
@@ -155,7 +160,7 @@ add_library(misc STATIC
 )
 register_lego1_target(misc)
 set_property(TARGET misc PROPERTY ARCHIVE_OUTPUT_NAME "misc$<$<CONFIG:Debug>:d>")
-target_include_directories(misc PRIVATE "${CMAKE_SOURCE_DIR}/LEGO1/omni/include" "${CMAKE_SOURCE_DIR}/LEGO1" "${CMAKE_SOURCE_DIR}/LEGO1/realtime" "${CMAKE_SOURCE_DIR}/util")
+target_include_directories(misc PRIVATE "${CMAKE_SOURCE_DIR}/LEGO1/omni/include" "${CMAKE_SOURCE_DIR}/LEGO1" "${CMAKE_SOURCE_DIR}/LEGO1/lego/sources" "${CMAKE_SOURCE_DIR}/util")
 target_link_libraries(misc PRIVATE)
 
 add_library(3dmanager STATIC
@@ -235,6 +240,7 @@ add_library(omni STATIC
   LEGO1/omni/src/system/mxscheduler.cpp
   LEGO1/omni/src/system/mxsemaphore.cpp
   LEGO1/omni/src/system/mxthread.cpp
+  LEGO1/omni/src/video/flic.cpp
   LEGO1/omni/src/video/mxbitmap.cpp
   LEGO1/omni/src/video/mxdisplaysurface.cpp
   LEGO1/omni/src/video/mxflcpresenter.cpp
@@ -253,8 +259,8 @@ add_library(omni STATIC
 )
 register_lego1_target(omni)
 set_property(TARGET omni PROPERTY ARCHIVE_OUTPUT_NAME "omni$<$<CONFIG:Debug>:d>")
-target_include_directories(omni PRIVATE "${CMAKE_SOURCE_DIR}/LEGO1/omni/include" "${CMAKE_SOURCE_DIR}/LEGO1" "${CMAKE_SOURCE_DIR}/LEGO1" "${CMAKE_SOURCE_DIR}/util")
-target_link_libraries(omni PRIVATE dsound winmm FLIC::FLIC Smacker::Smacker)
+target_include_directories(omni PRIVATE "${CMAKE_SOURCE_DIR}/LEGO1/omni/include" "${CMAKE_SOURCE_DIR}/LEGO1" "${CMAKE_SOURCE_DIR}/util")
+target_link_libraries(omni PRIVATE dsound winmm Smacker::Smacker)
 
 add_library(lego1 SHARED
   LEGO1/define.cpp
@@ -270,6 +276,7 @@ add_library(lego1 SHARED
   LEGO1/lego/legoomni/src/audio/legocachesound.cpp
   LEGO1/lego/legoomni/src/audio/legoloadcachesoundpresenter.cpp
   LEGO1/lego/legoomni/src/audio/legosoundmanager.cpp
+  LEGO1/lego/legoomni/src/audio/legounknown100d5778.cpp
   LEGO1/lego/legoomni/src/audio/legounknown100d6b4c.cpp
   LEGO1/lego/legoomni/src/audio/mxbackgroundaudiomanager.cpp
   LEGO1/lego/legoomni/src/build/buildingentity.cpp
@@ -282,7 +289,6 @@ add_library(lego1 SHARED
   LEGO1/lego/legoomni/src/build/legovehiclebuildstate.cpp
   LEGO1/lego/legoomni/src/build/racecar.cpp
   LEGO1/lego/legoomni/src/common/animstate.cpp
-  LEGO1/lego/legoomni/src/common/gifmanager.cpp
   LEGO1/lego/legoomni/src/common/legoactioncontrolpresenter.cpp
   LEGO1/lego/legoomni/src/common/legobackgroundcolor.cpp
   LEGO1/lego/legoomni/src/common/legofullscreenmovie.cpp
@@ -290,8 +296,10 @@ add_library(lego1 SHARED
   LEGO1/lego/legoomni/src/common/legoobjectfactory.cpp
   LEGO1/lego/legoomni/src/common/legoplantmanager.cpp
   LEGO1/lego/legoomni/src/common/legostate.cpp
+  LEGO1/lego/legoomni/src/common/legotextureinfo.cpp
   LEGO1/lego/legoomni/src/common/legounksavedatawriter.cpp
   LEGO1/lego/legoomni/src/common/legoutil.cpp
+  LEGO1/lego/legoomni/src/common/legovariables.cpp
   LEGO1/lego/legoomni/src/common/mxcompositemediapresenter.cpp
   LEGO1/lego/legoomni/src/control/legocontrolmanager.cpp
   LEGO1/lego/legoomni/src/control/mxcontrolpresenter.cpp
@@ -379,6 +387,7 @@ add_library(lego1 SHARED
   LEGO1/lego/legoomni/src/video/legovideomanager.cpp
   LEGO1/lego/legoomni/src/video/mxtransitionmanager.cpp
   LEGO1/main.cpp
+  LEGO1/modeldb/modeldb.cpp
 )
 register_lego1_target(lego1)
 
@@ -397,10 +406,9 @@ target_include_directories(lego1 PUBLIC "${CMAKE_SOURCE_DIR}/LEGO1")
 target_include_directories(lego1 PUBLIC "${CMAKE_SOURCE_DIR}/LEGO1/omni/include")
 target_include_directories(lego1 PUBLIC "${CMAKE_SOURCE_DIR}/LEGO1/lego/sources")
 target_include_directories(lego1 PUBLIC "${CMAKE_SOURCE_DIR}/LEGO1/lego/legoomni/include")
-target_include_directories(lego1 PUBLIC "${CMAKE_SOURCE_DIR}/LEGO1/realtime")
 
 # Link libraries
-target_link_libraries(lego1 PRIVATE tglrl viewmanager realtime mxdirectx roi FLIC::FLIC Vec::Vec dinput dxguid misc 3dmanager omni)
+target_link_libraries(lego1 PRIVATE tglrl viewmanager realtime mxdirectx roi anim Vec::Vec dinput dxguid misc 3dmanager omni)
 
 if (ISLE_USE_SMARTHEAP)
   foreach(tgt IN LISTS lego1_targets)
@@ -487,7 +495,10 @@ if (MSVC)
 endif()
 
 if (MSVC_FOR_DECOMP)
-    target_compile_definitions(lego1 PRIVATE "ENABLE_DECOMP_ASSERTS")
+    foreach(tgt IN LISTS lego1_targets)
+      target_compile_definitions(${tgt} PRIVATE "ENABLE_DECOMP_ASSERTS")
+    endforeach()
+
     if (TARGET isle)
       target_compile_definitions(isle PRIVATE "ENABLE_DECOMP_ASSERTS")
     endif()
@@ -501,12 +512,12 @@ if (MSVC_FOR_DECOMP)
   # game was originally built with) and tweaked slightly to produce more debugging info for reccmp.
   # They ensure a recompilation that can be byte/instruction accurate to the original binaries.
   if (ISLE_BUILD_APP)
-    target_compile_options(isle PRIVATE "/MT$<$<CONFIG:Debug>:d>")
     target_link_options(isle PRIVATE "/OPT:REF")
+    set_property(TARGET isle ${lego1_targets} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
   endif()
 
   # Equivalent to target_compile_options(... PRIVATE "/MT$<$<CONFIG:Debug>:d>")
-  set_property(TARGET lego1 ${lego1_targets} PROPERTY MSVC_RUNTIME_LIBRARY MultiThreaded$<$<CONFIG:Debug>:Debug>)
+  set_property(TARGET lego1 ${lego1_targets} PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded$<$<CONFIG:Debug>:Debug>")
 
   set(CMAKE_CXX_FLAGS "/W3 /GX /D \"WIN32\" /D \"_WINDOWS\"")
   set(CMAKE_CXX_FLAGS_DEBUG "/Gm /Zi /Od /D \"_DEBUG\"")
@@ -531,15 +542,20 @@ if (MSVC_FOR_DECOMP)
   # Older MSVC versions don't support building in parallel.
   # Force non-parallel builds of isle and lego1 by putting them in a pool with 1 available job.
   if (CMAKE_CXX_COMPILER_ID VERSION_LESS 12)
-    foreach(tgt IN LISTS lego1_taregets)
-      set_property(GLOBAL APPEND PROPERTY JOB_POOLS "msvc_${tgt}=1;msvc_lego1=1")
-      set_property(TARGET ${tgt} PROPERTY JOB_POOL_COMPILE msvc_${tgt})
-      set_property(TARGET ${tgt} PROPERTY JOB_POOL_LINK msvc_${tgt})
+    foreach(tgt IN LISTS lego1_targets)
+      set_property(GLOBAL APPEND PROPERTY JOB_POOLS "msvc_${tgt}=1")
+      set_property(TARGET ${tgt} PROPERTY JOB_POOL_COMPILE "msvc_${tgt}")
+      set_property(TARGET ${tgt} PROPERTY JOB_POOL_LINK "msvc_${tgt}")
     endforeach()
     if (TARGET isle)
       set_property(GLOBAL APPEND PROPERTY JOB_POOLS "msvc_isle=1")
-      set_property(TARGET isle PROPERTY JOB_POOL_COMPILE msvc_isle)
-      set_property(TARGET isle PROPERTY JOB_POOL_LINK msvc_isle)
+      set_property(TARGET isle PROPERTY JOB_POOL_COMPILE "msvc_isle")
+      set_property(TARGET isle PROPERTY JOB_POOL_LINK "msvc_isle")
+    endif()
+    if (TARGET config)
+      set_property(GLOBAL APPEND PROPERTY JOB_POOLS "msvc_config=1")
+      set_property(TARGET config PROPERTY JOB_POOL_COMPILE "msvc_config")
+      set_property(TARGET config PROPERTY JOB_POOL_LINK "msvc_config")
     endif()
   endif()
 endif()

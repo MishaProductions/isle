@@ -3,12 +3,20 @@
 
 #include "mxvideopresenter.h"
 
-class AutoROI;
+class LegoROI;
+class LegoWorld;
+class LegoEntity;
+class MxDSChunk;
 
 // VTABLE: LEGO1 0x100d4e50
 // SIZE 0x6c (discovered through inline constructor at 0x10009ae6)
 class LegoModelPresenter : public MxVideoPresenter {
 public:
+	LegoModelPresenter() { Reset(); }
+
+	// FUNCTION: LEGO1 0x10067a10
+	~LegoModelPresenter() override { Destroy(TRUE); }
+
 	static void configureLegoModelPresenter(MxS32 p_modelPresenterConfig);
 
 	// FUNCTION: LEGO1 0x1000ccb0
@@ -28,6 +36,14 @@ public:
 	void ParseExtra() override;  // vtable+0x30
 	void Destroy() override;     // vtable+0x38
 
+	MxResult FUN_1007ff70(MxDSChunk& p_chunk, LegoEntity* p_entity, undefined p_modelUnknown0x34, LegoWorld* p_world);
+
+	inline void Reset()
+	{
+		m_roi = NULL;
+		m_addedToView = FALSE;
+	}
+
 	// SYNTHETIC: LEGO1 0x1000cdd0
 	// LegoModelPresenter::`scalar deleting destructor'
 
@@ -35,10 +51,10 @@ protected:
 	void Destroy(MxBool p_fromDestructor);
 
 private:
-	AutoROI* m_unk0x64;   // 0x64
+	LegoROI* m_roi;       // 0x64
 	MxBool m_addedToView; // 0x68
 
-	undefined4 LoadModel(MxStreamChunk* p_chunk);
+	MxResult CreateROI(MxDSChunk* p_chunk);
 };
 
 #endif // LEGOMODELPRESENTER_H

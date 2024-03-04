@@ -84,7 +84,7 @@ MxResult LegoWorld::Create(MxDSAction& p_dsAction)
 
 	if (p_dsAction.GetFlags() & MxDSAction::c_enabled) {
 		if (CurrentWorld()) {
-			CurrentWorld()->Enable(0);
+			CurrentWorld()->Enable(FALSE);
 		}
 
 		SetCurrentWorld(this);
@@ -92,7 +92,7 @@ MxResult LegoWorld::Create(MxDSAction& p_dsAction)
 	}
 
 	SetIsWorldActive(TRUE);
-	m_unk0xec = -1;
+	m_scriptIndex = -1;
 
 	return SUCCESS;
 }
@@ -169,8 +169,8 @@ void LegoWorld::Destroy(MxBool p_fromDestructor)
 		}
 	}
 
-	if (m_unk0xec != -1 && m_set0xd0.empty()) {
-		PlantManager()->FUN_100263a0(m_unk0xec);
+	if (m_scriptIndex != -1 && m_set0xd0.empty()) {
+		PlantManager()->FUN_100263a0(m_scriptIndex);
 		BuildingManager()->FUN_1002fb30();
 	}
 
@@ -203,9 +203,9 @@ void LegoWorld::Destroy(MxBool p_fromDestructor)
 		m_cacheSoundList = NULL;
 	}
 
-	while (!m_list0xe0.empty()) {
-		AutoROI* roi = m_list0xe0.front();
-		m_list0xe0.pop_front();
+	while (!m_roiList.empty()) {
+		LegoROI* roi = m_roiList.front();
+		m_roiList.pop_front();
 		delete roi;
 	}
 
@@ -302,7 +302,7 @@ void LegoWorld::Add(MxCore* p_object)
 
 			if (!strcmpi(animPresenter->GetAction()->GetObjectName(), "ConfigAnimation")) {
 				FUN_1003e050(animPresenter);
-				animPresenter->GetAction()->SetDuration(animPresenter->GetUnknown0x64()->GetUnknown0x8());
+				animPresenter->GetAction()->SetDuration(animPresenter->GetAnimation()->GetDuration());
 			}
 		}
 
@@ -448,7 +448,7 @@ MxCore* LegoWorld::Find(const char* p_class, const char* p_name)
 			}
 
 			LegoROI* roi = entity->GetROI();
-			if (roi && !strcmpi(roi->GetUnknown0xe4(), p_name)) {
+			if (roi && !strcmpi(roi->GetName(), p_name)) {
 				return entity;
 			}
 		}
@@ -547,7 +547,7 @@ void LegoWorld::Enable(MxBool p_enable)
 				while (cursor.Next(entity)) {
 					if (entity->GetROI()) {
 						entity->GetROI()->SetUnknown0x104(entity);
-						GetViewManager()->AddToUnknown0x08(entity->GetROI());
+						GetViewManager()->Add(entity->GetROI());
 					}
 				}
 			}
@@ -574,31 +574,31 @@ void LegoWorld::Enable(MxBool p_enable)
 				Lego()->SetNavController(m_cameraController->GetNavController());
 			}
 
-			if (m_unk0xec != -1) {
-				PlantManager()->FUN_10026360(m_unk0xec);
-				AnimationManager()->FUN_1005f720(m_unk0xec);
+			if (m_scriptIndex != -1) {
+				PlantManager()->FUN_10026360(m_scriptIndex);
+				AnimationManager()->FUN_1005f720(m_scriptIndex);
 				BuildingManager()->FUN_1002fa00();
 				AnimationManager()->FUN_1005f0b0();
 			}
 
-			GameState()->FUN_10039940();
+			GameState()->ResetROI();
 			SetIsWorldActive(TRUE);
 		}
 	}
 	else if (!p_enable && m_set0xd0.empty()) {
 		MxPresenter* presenter;
 		LegoPathController* controller;
-		IslePathActor* vehicle = CurrentVehicle();
+		IslePathActor* actor = CurrentActor();
 
-		if (vehicle) {
-			FUN_1001fc80(vehicle);
+		if (actor) {
+			FUN_1001fc80(actor);
 		}
 
 		AnimationManager()->FUN_1005ee80(FALSE);
 		m_set0xd0.insert(this);
 
-		if (m_unk0xec != -1) {
-			PlantManager()->FUN_100263a0(m_unk0xec);
+		if (m_scriptIndex != -1) {
+			PlantManager()->FUN_100263a0(m_scriptIndex);
 			BuildingManager()->FUN_1002fb30();
 		}
 

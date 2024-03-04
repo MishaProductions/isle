@@ -3,6 +3,12 @@
 
 #include "legoentitypresenter.h"
 
+#include <stdio.h>
+
+class LegoWorld;
+struct ModelDbPart;
+struct ModelDbModel;
+
 // VTABLE: LEGO1 0x100d8ee0
 // SIZE 0x54
 class LegoWorldPresenter : public LegoEntityPresenter {
@@ -30,6 +36,10 @@ public:
 	void ParseExtra() override;                                                            // vtable+0x30
 	MxResult StartAction(MxStreamController* p_controller, MxDSAction* p_action) override; // vtable+0x3c
 	void VTable0x60(MxPresenter* p_presenter) override;                                    // vtable+0x60
+
+	MxResult FUN_10067360(ModelDbPart& p_part, FILE* p_wdbFile);
+	MxResult FUN_100674b0(ModelDbModel& p_model, FILE* p_wdbFile, LegoWorld* p_world);
+	MxResult LoadWorld(char* p_worldName, LegoWorld* p_world);
 
 	// SYNTHETIC: LEGO1 0x10066750
 	// LegoWorldPresenter::`scalar deleting destructor'

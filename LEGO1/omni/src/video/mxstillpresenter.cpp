@@ -63,7 +63,7 @@ void MxStillPresenter::NextFrame()
 {
 	MxStreamChunk* chunk = NextChunk();
 	LoadFrame(chunk);
-	m_subscriber->DestroyChunk(chunk);
+	m_subscriber->FreeDataChunk(chunk);
 }
 
 // FUNCTION: LEGO1 0x100b9dd0
@@ -149,7 +149,7 @@ void MxStillPresenter::RepeatingTickle()
 }
 
 // FUNCTION: LEGO1 0x100ba040
-void MxStillPresenter::VTable0x88(MxS32 p_x, MxS32 p_y)
+void MxStillPresenter::SetPosition(MxS32 p_x, MxS32 p_y)
 {
 	MxS32 x = m_location.GetX();
 	MxS32 y = m_location.GetY();
@@ -199,29 +199,27 @@ void MxStillPresenter::ParseExtra()
 		SetBit3(TRUE);
 	}
 
-	MxU32 len = m_action->GetExtraLength();
+	MxU16 extraLength;
+	char* extraData;
+	m_action->GetExtra(extraLength, extraData);
 
-	if (len == 0) {
-		return;
-	}
+	if (extraLength & MAXWORD) {
+		char extraCopy[512];
+		memcpy(extraCopy, extraData, extraLength & MAXWORD);
+		extraCopy[extraLength & MAXWORD] = '\0';
 
-	len &= MAXWORD;
-
-	char buf[512];
-	memcpy(buf, m_action->GetExtraData(), len);
-	buf[len] = '\0';
-
-	char output[512];
-	if (KeyValueStringParse(output, g_strVISIBILITY, buf)) {
-		if (strcmpi(output, "FALSE") == 0) {
-			Enable(FALSE);
+		char output[512];
+		if (KeyValueStringParse(output, g_strVISIBILITY, extraCopy)) {
+			if (strcmpi(output, "FALSE") == 0) {
+				Enable(FALSE);
+			}
 		}
-	}
 
-	if (KeyValueStringParse(output, g_strBmpIsmap, buf)) {
-		SetBit4(TRUE);
-		SetBit1(FALSE);
-		SetBit2(FALSE);
+		if (KeyValueStringParse(output, g_strBmpIsmap, extraCopy)) {
+			SetBit4(TRUE);
+			SetBit1(FALSE);
+			SetBit2(FALSE);
+		}
 	}
 }
 

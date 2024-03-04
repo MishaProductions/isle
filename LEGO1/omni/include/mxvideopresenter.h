@@ -43,20 +43,20 @@ public:
 	MxBool IsHit(MxS32 p_x, MxS32 p_y) override; // vtable+0x50
 
 	// FUNCTION: LEGO1 0x1000c700
-	virtual void LoadHeader(MxStreamChunk* p_chunk){}; // vtable+0x5c
+	virtual void LoadHeader(MxStreamChunk* p_chunk) {} // vtable+0x5c
 
 	// FUNCTION: LEGO1 0x1000c710
-	virtual void CreateBitmap(){}; // vtable+0x60
+	virtual void CreateBitmap() {} // vtable+0x60
 
 	virtual void NextFrame(); // vtable+0x64
 
 	// FUNCTION: LEGO1 0x1000c720
-	virtual void LoadFrame(MxStreamChunk* p_chunk){}; // vtable+0x68
+	virtual void LoadFrame(MxStreamChunk* p_chunk) {} // vtable+0x68
 
 	virtual void PutFrame(); // vtable+0x6c
 
 	// FUNCTION: LEGO1 0x1000c730
-	virtual void RealizePalette(){}; // vtable+0x70
+	virtual void RealizePalette() {} // vtable+0x70
 
 	virtual undefined VTable0x74(); // vtable+0x74
 
@@ -89,7 +89,7 @@ public:
 		// MxVideoPresenter::AlphaMask::`scalar deleting destructor'
 	};
 
-	inline MxS32 PrepareRects(MxRect32& p_rectDest, MxRect32& p_rectSrc);
+	inline MxS32 PrepareRects(RECT& p_rectDest, RECT& p_rectSrc);
 	inline MxBitmap* GetBitmap() { return m_bitmap; }
 	inline AlphaMask* GetAlphaMask() { return m_alpha; }
 

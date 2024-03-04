@@ -119,7 +119,7 @@ void MxWavePresenter::ReadyTickle()
 	if (chunk) {
 		m_waveFormat = (WaveFormat*) new MxU8[chunk->GetLength()];
 		memcpy(m_waveFormat, chunk->GetData(), chunk->GetLength());
-		m_subscriber->DestroyChunk(chunk);
+		m_subscriber->FreeDataChunk(chunk);
 		ParseExtra();
 		ProgressTickleState(e_starting);
 	}
@@ -218,7 +218,8 @@ void MxWavePresenter::DoneTickle()
 
 		MxS8 playedChunks = dwCurrentPlayCursor / m_chunkLength;
 		if (m_action->GetFlags() & MxDSAction::c_bit7 || m_action->GetFlags() & MxDSAction::c_looping ||
-			m_writtenChunks != playedChunks || m_lockSize + (m_chunkLength * playedChunks) <= dwCurrentPlayCursor) {
+			(!(m_action->GetFlags() & MxDSAction::c_looping) &&
+			 (m_writtenChunks != playedChunks || m_lockSize + (m_chunkLength * playedChunks) <= dwCurrentPlayCursor))) {
 			MxMediaPresenter::DoneTickle();
 		}
 	}
@@ -232,7 +233,7 @@ void MxWavePresenter::LoopChunk(MxStreamChunk* p_chunk)
 {
 	WriteToSoundBuffer(p_chunk->GetData(), p_chunk->GetLength());
 	if (IsEnabled()) {
-		m_subscriber->DestroyChunk(p_chunk);
+		m_subscriber->FreeDataChunk(p_chunk);
 	}
 }
 
@@ -246,7 +247,7 @@ MxResult MxWavePresenter::PutData()
 		case e_streaming:
 			if (m_currentChunk && FUN_100b1ba0()) {
 				WriteToSoundBuffer(m_currentChunk->GetData(), m_currentChunk->GetLength());
-				m_subscriber->DestroyChunk(m_currentChunk);
+				m_subscriber->FreeDataChunk(m_currentChunk);
 				m_currentChunk = NULL;
 			}
 
@@ -321,16 +322,16 @@ void MxWavePresenter::Enable(MxBool p_enable)
 // FUNCTION: LEGO1 0x100b23a0
 void MxWavePresenter::ParseExtra()
 {
-	char extraCopy[512];
-
 	MxSoundPresenter::ParseExtra();
-	*((MxU16*) &extraCopy[0]) = m_action->GetExtraLength();
-	char* extraData = m_action->GetExtraData();
 
-	if (*((MxU16*) &extraCopy[0])) {
-		MxU16 len = *((MxU16*) &extraCopy[0]);
-		memcpy(extraCopy, extraData, len);
-		extraCopy[len] = '\0';
+	MxU16 extraLength;
+	char* extraData;
+	m_action->GetExtra(extraLength, extraData);
+
+	if (extraLength & MAXWORD) {
+		char extraCopy[512];
+		memcpy(extraCopy, extraData, extraLength & MAXWORD);
+		extraCopy[extraLength & MAXWORD] = '\0';
 
 		char soundValue[512];
 		if (KeyValueStringParse(soundValue, g_strSOUND, extraCopy)) {

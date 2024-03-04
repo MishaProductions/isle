@@ -1,5 +1,7 @@
 #include "legoanimationmanager.h"
 
+DECOMP_SIZE_ASSERT(LegoAnimationManager, 0x500)
+
 // GLOBAL: LEGO1 0x100f74f8
 int g_legoAnimationManagerConfig = 1;
 
@@ -52,7 +54,7 @@ void LegoAnimationManager::FUN_1005f6d0(MxBool)
 }
 
 // STUB: LEGO1 0x1005f720
-void LegoAnimationManager::FUN_1005f720(undefined4)
+void LegoAnimationManager::FUN_1005f720(MxS32 p_scriptIndex)
 {
 	// TODO
 }

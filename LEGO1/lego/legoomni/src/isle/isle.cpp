@@ -48,8 +48,8 @@ Isle::~Isle()
 		InputManager()->ClearWorld();
 	}
 
-	if (CurrentVehicle() != NULL) {
-		VTable0x6c(CurrentVehicle());
+	if (CurrentActor() != NULL) {
+		VTable0x6c(CurrentActor());
 	}
 
 	NotificationManager()->Unregister(this);
@@ -64,21 +64,21 @@ MxResult Isle::Create(MxDSAction& p_dsAction)
 	if (result == SUCCESS) {
 		ControlManager()->Register(this);
 		InputManager()->SetWorld(this);
-		GameState()->StopArea();
+		GameState()->StopArea(LegoGameState::e_previousArea);
 
 		switch (GameState()->GetLoadedAct()) {
 		case LegoGameState::e_act2:
-			GameState()->StopArea(0x2e);
+			GameState()->StopArea(LegoGameState::e_act2main);
 			break;
 		case LegoGameState::e_act3:
-			GameState()->StopArea(0x2e);
+			GameState()->StopArea(LegoGameState::e_act2main); // Looks like a bug
 			break;
 		case LegoGameState::e_actNotFound:
 			m_unk0x13c = 2;
 		}
 
-		if (GameState()->GetCurrentArea() == 1) {
-			GameState()->SetCurrentArea(0);
+		if (GameState()->GetCurrentArea() == LegoGameState::e_isle) {
+			GameState()->SetCurrentArea(LegoGameState::e_noArea);
 		}
 
 		LegoGameState* gameState = GameState();
@@ -123,7 +123,7 @@ MxLong Isle::Notify(MxParam& p_param)
 		case c_notificationType18:
 			switch (m_act1state->GetUnknown18()) {
 			case 4:
-				result = CurrentVehicle()->Notify(p_param);
+				result = CurrentActor()->Notify(p_param);
 				break;
 			case 8:
 				result = m_towtrack->Notify(p_param);
@@ -160,7 +160,7 @@ void Isle::ReadyWorld()
 	LegoWorld::ReadyWorld();
 
 	if (m_act1state->GetUnknown21()) {
-		GameState()->SwitchArea(2);
+		GameState()->SwitchArea(LegoGameState::e_infomain);
 		m_act1state->SetUnknown18(0);
 		m_act1state->SetUnknown21(0);
 	}

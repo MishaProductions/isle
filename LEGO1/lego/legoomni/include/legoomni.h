@@ -5,7 +5,7 @@
 #include "mxdsaction.h"
 #include "mxomni.h"
 
-class GifManager;
+class LegoTextureContainer;
 class Isle;
 class IslePathActor;
 class LegoAnimationManager;
@@ -69,6 +69,103 @@ public:
 		c_clearScreen = 0x04
 	};
 
+	// SIZE 0x1c
+	struct ScriptContainer {
+		// FUNCTION: LEGO1 0x1005ac40
+		ScriptContainer()
+		{
+			m_index = -1;
+			m_script = NULL;
+		}
+
+		ScriptContainer(MxS32 p_index, const char* p_key, MxAtomId* p_script)
+		{
+			m_index = p_index;
+
+			if (p_key) {
+				strcpy(m_key, p_key);
+			}
+
+			m_script = p_script;
+		}
+
+		// FUNCTION: LEGO1 0x1005ac50
+		ScriptContainer& operator=(const ScriptContainer& p_container)
+		{
+			m_index = p_container.m_index;
+			strcpy(m_key, p_container.m_key);
+			m_script = p_container.m_script;
+			return *this;
+		}
+
+		inline MxS32 GetIndex() { return m_index; }
+		inline const char* GetKey() { return m_key; }
+
+	private:
+		MxS32 m_index;      // 0x00
+		char m_key[20];     // 0x04
+		MxAtomId* m_script; // 0x18
+	};
+
+	// SIZE 0x38
+	struct PathContainer {
+		PathContainer() {}
+
+		// FUNCTION: LEGO1 0x1001b1b0
+		PathContainer(
+			undefined4 p_unk0x00,
+			MxAtomId* p_script,
+			undefined4 p_unk0x04,
+			const char* p_key,
+			undefined2 p_unk0x20,
+			float p_unk0x24,
+			undefined2 p_unk0x28,
+			float p_unk0x2c,
+			undefined4 p_unk0x30,
+			MxS32 p_unk0x34
+		)
+		{
+			m_unk0x00 = p_unk0x00;
+			m_script = p_script;
+			m_unk0x04 = p_unk0x04;
+			strcpy(m_key, p_key);
+			m_unk0x20 = p_unk0x20;
+			m_unk0x24 = p_unk0x24;
+			m_unk0x28 = p_unk0x28;
+			m_unk0x2c = p_unk0x2c;
+			m_unk0x30 = p_unk0x30;
+			m_unk0x34 = p_unk0x34;
+		}
+
+		// FUNCTION: LEGO1 0x1001b230
+		PathContainer& operator=(const PathContainer& p_container)
+		{
+			m_unk0x00 = p_container.m_unk0x00;
+			m_script = p_container.m_script;
+			m_unk0x04 = p_container.m_unk0x04;
+			strcpy(m_key, p_container.m_key);
+			m_unk0x20 = p_container.m_unk0x20;
+			m_unk0x24 = p_container.m_unk0x24;
+			m_unk0x28 = p_container.m_unk0x28;
+			m_unk0x2c = p_container.m_unk0x2c;
+			m_unk0x30 = p_container.m_unk0x30;
+			m_unk0x34 = p_container.m_unk0x34;
+			return *this;
+		}
+
+	private:
+		undefined4 m_unk0x00; // 0x00
+		MxAtomId* m_script;   // 0x04
+		undefined4 m_unk0x04; // 0x08
+		char m_key[20];       // 0x0c
+		undefined2 m_unk0x20; // 0x20
+		float m_unk0x24;      // 0x24
+		undefined2 m_unk0x28; // 0x28
+		float m_unk0x2c;      // 0x2c
+		undefined4 m_unk0x30; // 0x30
+		MxS32 m_unk0x34;      // 0x34
+	};
+
 	LegoOmni();
 	~LegoOmni() override; // vtable+00
 
@@ -99,12 +196,14 @@ public:
 	void StopTimer() override;                                                                   // vtable+3c
 
 	LegoWorld* FindWorld(const MxAtomId& p_atom, MxS32 p_entityid);
+	LegoROI* FindROI(const char* p_name);
 	void AddWorld(LegoWorld* p_world);
 	void DeleteWorld(LegoWorld* p_world);
 	void FUN_1005b4f0(MxBool p_disable, MxU16 p_flags);
 	void CreateBackgroundAudio();
-	void RemoveWorld(const MxAtomId&, MxLong);
-	undefined4 FUN_1005b490(char* p_worldName);
+	void RemoveWorld(const MxAtomId& p_atom, MxLong p_objectId);
+	MxResult RegisterScripts();
+	MxS32 GetScriptIndex(const char* p_key);
 
 	static MxS32 GetCurrPathInfo(LegoPathBoundary**, MxS32&);
 	static void CreateInstance();
@@ -112,11 +211,12 @@ public:
 
 	LegoVideoManager* GetVideoManager() { return (LegoVideoManager*) m_videoManager; }
 	LegoSoundManager* GetSoundManager() { return (LegoSoundManager*) m_soundManager; }
-	LegoInputManager* GetInputManager() { return m_inputMgr; }
-	GifManager* GetGifManager() { return m_gifManager; }
+	LegoInputManager* GetInputManager() { return m_inputManager; }
+	LegoTextureContainer* GetTextureContainer() { return m_textureContainer; }
+	ViewLODListManager* GetViewLODListManager() { return m_viewLODListManager; }
 	LegoWorld* GetCurrentWorld() { return m_currentWorld; }
 	LegoNavController* GetNavController() { return m_navController; }
-	IslePathActor* GetCurrentVehicle() { return m_currentVehicle; }
+	IslePathActor* GetCurrentActor() { return m_currentActor; }
 	LegoPlantManager* GetLegoPlantManager() { return m_plantManager; }
 	LegoAnimationManager* GetAnimationManager() { return m_animationManager; }
 	LegoBuildingManager* GetLegoBuildingManager() { return m_buildingManager; }
@@ -128,6 +228,7 @@ public:
 	LegoWorldList* GetWorldList() { return m_worldList; }
 
 	inline void SetNavController(LegoNavController* p_navController) { m_navController = p_navController; }
+	inline void SetCurrentActor(IslePathActor* p_currentActor) { m_currentActor = p_currentActor; }
 	inline void SetCurrentWorld(LegoWorld* p_currentWorld) { m_currentWorld = p_currentWorld; }
 	inline void SetExit(MxBool p_exit) { m_exit = p_exit; }
 
@@ -137,15 +238,15 @@ public:
 	// LegoOmni::`scalar deleting destructor'
 
 private:
-	undefined4* m_unk0x68;                       // 0x68
+	ScriptContainer* m_scripts;                  // 0x68
 	ViewLODListManager* m_viewLODListManager;    // 0x6c
-	LegoInputManager* m_inputMgr;                // 0x70
-	GifManager* m_gifManager;                    // 0x74
+	LegoInputManager* m_inputManager;            // 0x70
+	LegoTextureContainer* m_textureContainer;    // 0x74
 	LegoWorldList* m_worldList;                  // 0x78
 	LegoWorld* m_currentWorld;                   // 0x7c
 	MxBool m_exit;                               // 0x80
 	LegoNavController* m_navController;          // 0x84
-	IslePathActor* m_currentVehicle;             // 0x88
+	IslePathActor* m_currentActor;               // 0x88
 	LegoUnkSaveDataWriter* m_saveDataWriter;     // 0x8c
 	LegoPlantManager* m_plantManager;            // 0x90
 	LegoAnimationManager* m_animationManager;    // 0x94
@@ -171,23 +272,26 @@ LegoAnimationManager* AnimationManager();
 LegoNavController* NavController();
 LegoBuildingManager* BuildingManager();
 LegoControlManager* ControlManager();
-IslePathActor* CurrentVehicle();
+IslePathActor* CurrentActor();
 ViewManager* GetViewManager();
 LegoPlantManager* PlantManager();
 LegoWorld* CurrentWorld();
 LegoUnkSaveDataWriter* UnkSaveDataWriter();
-GifManager* GetGifManager();
+LegoTextureContainer* TextureContainer();
+ViewLODListManager* GetViewLODListManager();
 void FUN_10015820(MxBool p_disable, MxU16 p_flags);
-void FUN_10015860(const char*, MxU8);
+void SetROIUnknown0x0c(const char* p_name, undefined p_unk0x0c);
+void SetCurrentActor(IslePathActor* p_currentActor);
 LegoWorld* FindWorld(const MxAtomId& p_atom, MxS32 p_entityid);
+LegoROI* FindROI(const char* p_name);
 MxDSAction& GetCurrentAction();
 void SetCurrentWorld(LegoWorld* p_world);
 
 void PlayMusic(MxU32 p_index);
 void SetIsWorldActive(MxBool p_isWorldActive);
 void DeleteObjects(MxAtomId* p_id, MxS32 p_first, MxS32 p_last);
-void RegisterScripts();
-void UnregisterScripts();
+void CreateScripts();
+void DestroyScripts();
 void SetCurrentWorld(LegoWorld* p_world);
 
 #endif // LEGOOMNI_H

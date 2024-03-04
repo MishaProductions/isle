@@ -1,7 +1,10 @@
 #ifndef HISTORYBOOK_H
 #define HISTORYBOOK_H
 
+#include "decomp.h"
+#include "legogamestate.h"
 #include "legoworld.h"
+#include "mxstillpresenter.h"
 
 // VTABLE: LEGO1 0x100da328
 // SIZE 0x3e4
@@ -31,6 +34,12 @@ public:
 
 	// SYNTHETIC: LEGO1 0x100824b0
 	// HistoryBook::`scalar deleting destructor'
+
+private:
+	LegoGameState::Area m_transitionDestination; // 0xf8
+	MxStillPresenter* m_alphabet[26];            // 0xfc
+	MxStillPresenter* m_names[20][7];            // 0x164
+	MxStillPresenter* m_scores[20];              // 0x394
 };
 
 #endif // HISTORYBOOK_H

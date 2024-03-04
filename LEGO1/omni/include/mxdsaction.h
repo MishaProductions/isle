@@ -57,6 +57,12 @@ public:
 
 	void AppendData(MxU16 p_extraLength, const char* p_extraData);
 
+	inline void GetExtra(MxU16& p_extraLength, char*& p_extraData)
+	{
+		p_extraLength = m_extraLength;
+		p_extraData = m_extraData;
+	}
+
 	inline MxU32 GetFlags() { return m_flags; }
 	inline void SetFlags(MxU32 p_flags) { m_flags = p_flags; }
 	inline char* GetExtraData() { return m_extraData; }
@@ -67,6 +73,9 @@ public:
 	inline Mx3DPointFloat& GetLocation() { return m_location; }
 	inline Mx3DPointFloat& GetDirection() { return m_direction; }
 	inline Mx3DPointFloat& GetUp() { return m_up; }
+	inline void SetLocation(const Vector3& p_location) { m_location = p_location; }
+	inline void SetDirection(const Vector3& p_direction) { m_direction = p_direction; }
+	inline void SetUp(const Vector3& p_up) { m_up = p_up; }
 	inline MxCore* GetUnknown84() { return m_unk0x84; }
 	inline void SetUnknown84(MxCore* p_unk0x84) { m_unk0x84 = p_unk0x84; }
 	inline MxCore* GetOrigin() { return m_origin; }
@@ -74,16 +83,6 @@ public:
 
 	inline MxBool IsLooping() const { return m_flags & c_looping; }
 	inline MxBool IsBit3() const { return m_flags & c_bit3; }
-
-	inline void CopyFlags(MxU32 p_flags)
-	{
-		if (p_flags & MxDSAction::c_looping) {
-			SetFlags(GetFlags() | MxDSAction::c_looping);
-		}
-		else if (p_flags & MxDSAction::c_bit3) {
-			SetFlags(GetFlags() | MxDSAction::c_bit3);
-		}
-	}
 
 	// SYNTHETIC: LEGO1 0x100ada60
 	// MxDSAction::`scalar deleting destructor'

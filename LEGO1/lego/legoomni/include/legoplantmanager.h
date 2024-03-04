@@ -2,6 +2,7 @@
 #define LEGOPLANTMANAGER_H
 
 #include "decomp.h"
+#include "misc/legostorage.h"
 #include "mxcore.h"
 
 // VTABLE: LEGO1 0x100d6758
@@ -20,15 +21,22 @@ public:
 		return "LegoPlantManager";
 	}
 
-	void FUN_10026360(undefined4 p_world);
+	void Init();
+	void FUN_10026360(MxS32 p_scriptIndex);
 	void FUN_100263a0(undefined4 p_und);
+	void Save(LegoStorage* p_storage);
+	MxResult Load(LegoStorage* p_storage);
 	void FUN_10027120();
+
+	static void SetCustomizeAnimFile(const char* p_value);
 
 	// SYNTHETIC: LEGO1 0x100262a0
 	// LegoPlantManager::`scalar deleting destructor'
 
 private:
-	void Init();
+	static char* g_customizeAnimFile;
+
+	undefined m_unk0x08[0x24]; // 0x08
 };
 
 #endif // LEGOPLANTMANAGER_H

@@ -2,16 +2,30 @@
 #define POLICE_H
 
 #include "decomp.h"
+#include "legocontrolmanager.h"
+#include "legogamestate.h"
 #include "legoworld.h"
 #include "mxdsaction.h"
-#include "policestate.h"
 #include "radio.h"
+
+class PoliceState;
 
 // VTABLE: LEGO1 0x100d8a80
 // SIZE 0x110
 // Radio at 0xf8
 class Police : public LegoWorld {
 public:
+	enum PoliceScript {
+		c_leftArrowCtl = 1,
+		c_rightArrowCtl = 2,
+		c_infoCtl = 3,
+		c_doorCtl = 4,
+		c_donutCtl = 5,
+
+		c_nickAnim = 500,
+		c_lauraAnim = 501,
+	};
+
 	Police();
 	~Police() override; // vtable+0x00
 
@@ -40,13 +54,13 @@ public:
 	// Police::`scalar deleting destructor'
 
 private:
-	MxLong HandleNotification11(MxNotificationParam& p_param);
+	MxLong HandleClick(LegoControlManagerEvent& p_param);
 	MxLong HandleEndAction(MxEndActionNotificationParam& p_param);
 	MxLong HandleKeyPress(LegoEventNotificationParam& p_param);
 
-	Radio m_radio;                      // 0xf8
-	PoliceState* m_policeState;         // 0x108
-	undefined4 m_transitionDestination; // 0x10c
+	Radio m_radio;                               // 0xf8
+	PoliceState* m_policeState;                  // 0x108
+	LegoGameState::Area m_transitionDestination; // 0x10c
 };
 
 #endif // POLICE_H

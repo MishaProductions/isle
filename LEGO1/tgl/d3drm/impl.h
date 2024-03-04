@@ -79,6 +79,13 @@ public:
 	// vtable+0x30
 	Result SetTextureDefaultColorCount(unsigned long) override;
 
+	inline HRESULT CreateTextureFromSurface(LPDIRECTDRAWSURFACE pSurface, LPDIRECT3DRMTEXTURE2* pTexture2)
+	{
+		return m_data->CreateTextureFromSurface(pSurface, pTexture2);
+	}
+
+	inline IDirect3DRM2* ImplementationData() const { return m_data; }
+
 public:
 	inline Result Create();
 	inline void Destroy();
@@ -170,7 +177,7 @@ public:
 	// vtable+0x20
 	Result GetBackgroundColor(float* r, float* g, float* b) override;
 	Result Clear() override;
-	Result Render(const Light*) override;
+	Result Render(const Group*) override;
 	Result ForceUpdate(unsigned long x, unsigned long y, unsigned long width, unsigned long height) override;
 
 	// vtable+0x30
@@ -318,6 +325,8 @@ public:
 
 	// vtable+0x30
 	Result Unknown() override;
+
+	inline IDirect3DRMFrame2* ImplementationData() const { return m_data; }
 
 	friend class RendererImpl;
 

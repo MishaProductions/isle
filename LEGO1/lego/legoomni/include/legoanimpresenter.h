@@ -1,8 +1,8 @@
 #ifndef LEGOANIMPRESENTER_H
 #define LEGOANIMPRESENTER_H
 
-#include "lego/sources/misc/legostorage.h"
-#include "lego/sources/misc/legotree.h"
+#include "anim/legoanim.h"
+#include "legoroilist.h"
 #include "mxgeometry/mxgeometry3d.h"
 #include "mxvideopresenter.h"
 
@@ -13,6 +13,10 @@ class LegoAnimClass;
 // SIZE 0xc0
 class LegoAnimPresenter : public MxVideoPresenter {
 public:
+	enum {
+		c_bit2 = 0x02
+	};
+
 	LegoAnimPresenter();
 	~LegoAnimPresenter() override;
 
@@ -39,23 +43,41 @@ public:
 	MxResult StartAction(MxStreamController* p_controller, MxDSAction* p_action) override; // vtable+0x3c
 	void EndAction() override;                                                             // vtable+0x40
 	void PutFrame() override;                                                              // vtable+0x6c
-	virtual MxResult VTable0x88(MxStreamChunk* p_chunk);                                   // vtable+0x88
+	virtual MxResult CreateAnim(MxStreamChunk* p_chunk);                                   // vtable+0x88
+	virtual void VTable0x8c();                                                             // vtable+0x8c
+	virtual void VTable0x90();                                                             // vtable+0x90
+	virtual void VTable0x94();                                                             // vtable+0x94
+	virtual void VTable0x98();                                                             // vtable+0x98
 
-	inline LegoAnimClass* GetUnknown0x64() { return m_unk0x64; }
+	// STUB: LEGO1 0x1000c990
+	virtual void VTable0x9c() {} // vtable+0x9c
+
+	virtual void VTable0xa0(); // vtable+0xa0
+
+	inline LegoAnim* GetAnimation() { return m_anim; }
 
 	const char* GetActionObjectName();
 
 protected:
 	void Init();
 	void Destroy(MxBool p_fromDestructor);
+	LegoChar* FUN_10069150(const LegoChar* p_und1);
+	void FUN_100692b0();
+	void FUN_100695c0();
+	LegoChar* FUN_100697c0(const LegoChar* p_und1, const LegoChar* p_und2);
+	LegoBool FUN_100698b0(const CompoundObject& p_rois, const LegoChar* p_und2);
+	void FUN_10069b10();
+	LegoBool FUN_1006aba0();
+	LegoBool FUN_1006abb0(LegoTreeNode*, undefined4);
+	void FUN_1006ac90();
+	void FUN_1006c8a0(LegoBool);
 
-protected:
-	LegoAnimClass* m_unk0x64;  // 0x64
-	undefined4 m_unk0x68;      // 0x68
+	LegoAnim* m_anim;          // 0x64
+	undefined4* m_unk0x68;     // 0x68
 	undefined4 m_unk0x6c;      // 0x6c
-	undefined4 m_unk0x70;      // 0x70
-	undefined4 m_unk0x74;      // 0x74
-	undefined4 m_unk0x78;      // 0x78
+	LegoROIList* m_unk0x70;    // 0x70
+	LegoROIList* m_unk0x74;    // 0x74
+	MxMatrix* m_unk0x78;       // 0x78
 	undefined4 m_unk0x7c;      // 0x7c
 	LegoWorld* m_currentWorld; // 0x80
 	MxAtomId m_animAtom;       // 0x84
@@ -64,7 +86,7 @@ protected:
 	undefined4 m_unk0x90;      // 0x90
 	undefined m_unk0x94;       // 0x94
 	undefined m_unk0x95;       // 0x95
-	undefined m_unk0x96;       // 0x96
+	MxBool m_unk0x96;          // 0x96
 	undefined m_unk0x97;       // 0x97
 	undefined4 m_unk0x98;      // 0x98
 	MxS16 m_unk0x9c;           // 0x9c
@@ -76,28 +98,5 @@ protected:
 
 // SYNTHETIC: LEGO1 0x10068650
 // LegoAnimPresenter::`scalar deleting destructor'
-
-// VTABLE: LEGO1 0x100db8d8
-// SIZE 0x18
-class LegoAnimClass : public LegoTree {
-public:
-	LegoAnimClass();
-	~LegoAnimClass() override;
-
-	LegoResult Write(LegoStorage* p_storage) override;        // vtable+0x08
-	LegoTreeNodeData* CreateData() override;                  // vtable+0x0c
-	virtual MxResult VTable0x10(LegoMemory* p_stream, MxS32); // vtable+0x10
-
-	inline MxLong GetUnknown0x8() { return m_unk0x08; }
-
-private:
-	MxLong m_unk0x08;     // 0x08
-	undefined4 m_unk0x0c; // 0x0c
-	undefined4 m_unk0x10; // 0x10
-	undefined4 m_unk0x14; // 0x14
-};
-
-// SYNTHETIC: LEGO1 0x100a0ba0
-// LegoAnimClass::`scalar deleting destructor'
 
 #endif // LEGOANIMPRESENTER_H

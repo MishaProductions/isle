@@ -1,16 +1,22 @@
 #include "legoworldpresenter.h"
 
 #include "define.h"
+#include "legoactorpresenter.h"
 #include "legoanimationmanager.h"
 #include "legobuildingmanager.h"
 #include "legoentity.h"
+#include "legomodelpresenter.h"
 #include "legoomni.h"
+#include "legopartpresenter.h"
 #include "legoplantmanager.h"
+#include "legotexturepresenter.h"
 #include "legovideomanager.h"
 #include "legoworld.h"
+#include "modeldb/modeldb.h"
 #include "mxactionnotificationparam.h"
 #include "mxautolocker.h"
 #include "mxdsactionlist.h"
+#include "mxdschunk.h"
 #include "mxdsmediaaction.h"
 #include "mxdsmultiaction.h"
 #include "mxnotificationmanager.h"
@@ -19,8 +25,13 @@
 #include "mxstl/stlcompat.h"
 #include "mxutil.h"
 
+#include <io.h>
+
 // GLOBAL: LEGO1 0x100f75d4
-undefined4 g_legoWorldPresenterQuality = 1;
+MxS32 g_legoWorldPresenterQuality = 1;
+
+// GLOBAL: LEGO1 0x100f75d8
+MxLong g_wdbOffset = 0;
 
 // FUNCTION: LEGO1 0x100665b0
 void LegoWorldPresenter::configureLegoWorldPresenter(MxS32 p_legoWorldPresenterQuality)
@@ -40,9 +51,9 @@ LegoWorldPresenter::~LegoWorldPresenter()
 	OutputDebugString("!!!!destroy world presenter!!!!!\n");
 	MxBool result = FALSE;
 	if (m_entity) {
-		undefined4 world = ((LegoWorld*) m_entity)->GetUnknown0xec();
-		PlantManager()->FUN_10026360(world);
-		AnimationManager()->FUN_1005f720(world);
+		MxS32 scriptIndex = ((LegoWorld*) m_entity)->GetScriptIndex();
+		PlantManager()->FUN_10026360(scriptIndex);
+		AnimationManager()->FUN_1005f720(scriptIndex);
 		BuildingManager()->FUN_1002fa00();
 		result = ((LegoWorld*) m_entity)->VTable0x5c();
 	}
@@ -75,21 +86,24 @@ MxResult LegoWorldPresenter::StartAction(MxStreamController* p_controller, MxDSA
 	MxDSAction* action;
 
 	if (MxPresenter::StartAction(p_controller, p_action) == SUCCESS) {
-		// The usual cursor.Next() loop doesn't match here, even though
-		// the logic is the same. It does match when "deconstructed" into
-		// the following Head(), Current() and NextFragment() calls,
-		// but this seems unlikely to be the original code.
-		// The alpha debug build also uses Next().
 		cursor.Head();
+
 		while (cursor.Current(action)) {
-			cursor.NextFragment();
-
 			MxBool success = FALSE;
+			const char* presenterName;
+			MxPresenter* presenter = NULL;
 
-			action->CopyFlags(m_action->GetFlags());
+			cursor.Next();
 
-			const char* presenterName = PresenterNameDispatch(*action);
-			MxPresenter* presenter = (MxPresenter*) factory->Create(presenterName);
+			if (m_action->GetFlags() & MxDSAction::c_looping) {
+				action->SetFlags(action->GetFlags() | MxDSAction::c_looping);
+			}
+			else if (m_action->GetFlags() & MxDSAction::c_bit3) {
+				action->SetFlags(action->GetFlags() | MxDSAction::c_bit3);
+			}
+
+			presenterName = PresenterNameDispatch(*action);
+			presenter = (MxPresenter*) factory->Create(presenterName);
 
 			{
 				char cad[512];
@@ -169,9 +183,243 @@ void LegoWorldPresenter::StartingTickle()
 	ProgressTickleState(e_streaming);
 }
 
-// STUB: LEGO1 0x10066b40
-void LoadWorld(char* p_worldName, LegoWorld* p_world)
+// FUNCTION: LEGO1 0x10066b40
+MxResult LegoWorldPresenter::LoadWorld(char* p_worldName, LegoWorld* p_world)
 {
+	char wdbPath[512];
+	sprintf(wdbPath, "%s", MxOmni::GetHD());
+
+	if (wdbPath[strlen(wdbPath) - 1] != '\\') {
+		strcat(wdbPath, "\\");
+	}
+
+	strcat(wdbPath, "lego\\data\\world.wdb");
+
+	if (access(wdbPath, 4) != 0) {
+		sprintf(wdbPath, "%s", MxOmni::GetCD());
+
+		if (wdbPath[strlen(wdbPath) - 1] != '\\') {
+			strcat(wdbPath, "\\");
+		}
+
+		strcat(wdbPath, "lego\\data\\world.wdb");
+
+		if (access(wdbPath, 4) != 0) {
+			return FAILURE;
+		}
+	}
+
+	ModelDbWorld* worlds = NULL;
+	MxS32 numWorlds, i, j;
+	MxU32 size;
+	MxU8* buff;
+	FILE* wdbFile = fopen(wdbPath, "rb");
+
+	if (wdbFile == NULL) {
+		return FAILURE;
+	}
+
+	ReadModelDbWorlds(wdbFile, worlds, numWorlds);
+
+	for (i = 0; i < numWorlds; i++) {
+		if (!strcmpi(worlds[i].m_worldName, p_worldName)) {
+			break;
+		}
+	}
+
+	if (i == numWorlds) {
+		return FAILURE;
+	}
+
+	if (g_wdbOffset == 0) {
+		if (fread(&size, sizeof(size), 1, wdbFile) != 1) {
+			return FAILURE;
+		}
+
+		buff = new MxU8[size];
+		if (fread(buff, size, 1, wdbFile) != 1) {
+			return FAILURE;
+		}
+
+		MxDSChunk chunk;
+		chunk.SetLength(size);
+		chunk.SetData(buff);
+
+		LegoTexturePresenter texturePresenter;
+		if (texturePresenter.Read(chunk) == SUCCESS) {
+			texturePresenter.FUN_1004f290();
+		}
+
+		delete[] buff;
+
+		if (fread(&size, sizeof(size), 1, wdbFile) != 1) {
+			return FAILURE;
+		}
+
+		buff = new MxU8[size];
+		if (fread(buff, size, 1, wdbFile) != 1) {
+			return FAILURE;
+		}
+
+		chunk.SetLength(size);
+		chunk.SetData(buff);
+
+		LegoPartPresenter partPresenter;
+		if (partPresenter.Read(chunk) == SUCCESS) {
+			partPresenter.FUN_1007df20();
+		}
+
+		delete[] buff;
+
+		g_wdbOffset = ftell(wdbFile);
+	}
+	else {
+		if (fseek(wdbFile, g_wdbOffset, SEEK_SET) != 0) {
+			return FAILURE;
+		}
+	}
+
+	ModelDbPartListCursor cursor(worlds[i].m_partList);
+	ModelDbPart* part;
+
+	while (cursor.Next(part)) {
+		if (GetViewLODListManager()->Lookup(part->m_roiName.GetData()) == NULL &&
+			FUN_10067360(*part, wdbFile) != SUCCESS) {
+			return FAILURE;
+		}
+	}
+
+	for (j = 0; j < worlds[i].m_numModels; j++) {
+		if (!strnicmp(worlds[i].m_models[j].m_modelName, "isle", 4)) {
+			switch (g_legoWorldPresenterQuality) {
+			case 0:
+				if (strcmpi(worlds[i].m_models[j].m_modelName, "isle_lo")) {
+					continue;
+				}
+				break;
+			case 1:
+				if (strcmpi(worlds[i].m_models[j].m_modelName, "isle")) {
+					continue;
+				}
+				break;
+			case 2:
+				if (strcmpi(worlds[i].m_models[j].m_modelName, "isle_hi")) {
+					continue;
+				}
+			}
+		}
+		else if (g_legoWorldPresenterQuality <= 1 && !strnicmp(worlds[i].m_models[j].m_modelName, "haus", 4)) {
+			if (worlds[i].m_models[j].m_modelName[4] == '3') {
+				if (FUN_100674b0(worlds[i].m_models[j], wdbFile, p_world) != SUCCESS) {
+					return FAILURE;
+				}
+
+				if (FUN_100674b0(worlds[i].m_models[j - 2], wdbFile, p_world) != SUCCESS) {
+					return FAILURE;
+				}
+
+				if (FUN_100674b0(worlds[i].m_models[j - 1], wdbFile, p_world) != SUCCESS) {
+					return FAILURE;
+				}
+			}
+
+			continue;
+		}
+
+		if (FUN_100674b0(worlds[i].m_models[j], wdbFile, p_world) != SUCCESS) {
+			return FAILURE;
+		}
+	}
+
+	FreeModelDbWorlds(worlds, numWorlds);
+	fclose(wdbFile);
+	return SUCCESS;
+}
+
+// FUNCTION: LEGO1 0x10067360
+MxResult LegoWorldPresenter::FUN_10067360(ModelDbPart& p_part, FILE* p_wdbFile)
+{
+	MxResult result;
+	MxU8* buff = new MxU8[p_part.m_partDataLength];
+
+	fseek(p_wdbFile, p_part.m_partDataOffset, 0);
+	if (fread(buff, p_part.m_partDataLength, 1, p_wdbFile) != 1) {
+		return FAILURE;
+	}
+
+	MxDSChunk chunk;
+	chunk.SetLength(p_part.m_partDataLength);
+	chunk.SetData(buff);
+
+	LegoPartPresenter part;
+	result = part.Read(chunk);
+
+	if (result == SUCCESS) {
+		part.FUN_1007df20();
+	}
+
+	delete[] buff;
+	return result;
+}
+
+// FUNCTION: LEGO1 0x100674b0
+MxResult LegoWorldPresenter::FUN_100674b0(ModelDbModel& p_model, FILE* p_wdbFile, LegoWorld* p_world)
+{
+	MxU8* buff = new MxU8[p_model.m_unk0x04];
+
+	fseek(p_wdbFile, p_model.m_unk0x08, 0);
+	if (fread(buff, p_model.m_unk0x04, 1, p_wdbFile) != 1) {
+		return FAILURE;
+	}
+
+	MxDSChunk chunk;
+	chunk.SetLength(p_model.m_unk0x04);
+	chunk.SetData(buff);
+
+	MxDSAction action;
+	MxAtomId atom;
+	action.SetLocation(p_model.m_location);
+	action.SetDirection(p_model.m_direction);
+	action.SetUp(p_model.m_up);
+
+	MxU32 objectId = m_unk0x50;
+	m_unk0x50++;
+	action.SetObjectId(objectId);
+
+	action.SetAtomId(atom);
+
+	LegoEntity* createdEntity = NULL;
+
+	if (!strcmp(p_model.m_presenterName, "LegoActorPresenter")) {
+		LegoActorPresenter presenter;
+		presenter.SetAction(&action);
+		LegoEntity* entity = (LegoEntity*) presenter.CreateEntity("LegoActor");
+		presenter.SetInternalEntity(entity);
+		presenter.SetEntityLocation(p_model.m_location, p_model.m_direction, p_model.m_up);
+		entity->Create(action);
+	}
+	else if (!strcmp(p_model.m_presenterName, "LegoEntityPresenter")) {
+		LegoEntityPresenter presenter;
+		presenter.SetAction(&action);
+		createdEntity = (LegoEntity*) presenter.CreateEntity("LegoEntity");
+		presenter.SetInternalEntity(createdEntity);
+		presenter.SetEntityLocation(p_model.m_location, p_model.m_direction, p_model.m_up);
+		createdEntity->Create(action);
+	}
+
+	LegoModelPresenter modelPresenter;
+
+	if (createdEntity != NULL) {
+		action.SetLocation(Mx3DPointFloat(0.0, 0.0, 0.0));
+		action.SetUp(Mx3DPointFloat(0.0, 0.0, 1.0));
+		action.SetDirection(Mx3DPointFloat(0.0, 1.0, 0.0));
+	}
+
+	modelPresenter.SetAction(&action);
+	modelPresenter.FUN_1007ff70(chunk, createdEntity, p_model.m_unk0x34, p_world);
+	delete[] buff;
+
+	return SUCCESS;
 }
 
 // FUNCTION: LEGO1 0x10067a70
@@ -200,18 +448,20 @@ void LegoWorldPresenter::VTable0x60(MxPresenter* p_presenter)
 // FUNCTION: LEGO1 0x10067b00
 void LegoWorldPresenter::ParseExtra()
 {
-	char data[1024];
-	char output[1024];
-	MxU16 len = m_action->GetExtraLength();
-	*((MxU16*) &data[0]) = m_action->GetExtraLength();
-	if (len != 0) {
-		memcpy(data, m_action->GetExtraData(), len);
-		data[len] = 0;
+	MxU16 extraLength;
+	char* extraData;
+	m_action->GetExtra(extraLength, extraData);
 
-		if (KeyValueStringParse(output, g_strWORLD, data)) {
-			char* worldName = strtok(output, g_parseExtraTokens);
-			LoadWorld(worldName, (LegoWorld*) m_entity);
-			((LegoWorld*) m_entity)->SetUnknown0xec(Lego()->FUN_1005b490(worldName));
+	if (extraLength & MAXWORD) {
+		char extraCopy[1024];
+		memcpy(extraCopy, extraData, extraLength & MAXWORD);
+		extraCopy[extraLength & MAXWORD] = '\0';
+
+		char output[1024];
+		if (KeyValueStringParse(output, g_strWORLD, extraCopy)) {
+			char* worldKey = strtok(output, g_parseExtraTokens);
+			LoadWorld(worldKey, (LegoWorld*) m_entity);
+			((LegoWorld*) m_entity)->SetScriptIndex(Lego()->GetScriptIndex(worldKey));
 		}
 	}
 }
