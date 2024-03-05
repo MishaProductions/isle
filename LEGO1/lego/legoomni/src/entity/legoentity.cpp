@@ -53,7 +53,7 @@ void LegoEntity::Destroy(MxBool p_fromDestructor)
 	if (m_roi) {
 		if (m_flags & c_bit1) {
 			if (m_roi->GetUnknown0x104() == this) {
-				m_roi->SetUnknown0x104(NULL);
+				m_roi->SetEntity(NULL);
 			}
 
 			UnkSaveDataWriter()->FUN_10083db0(m_roi);
@@ -77,16 +77,68 @@ void LegoEntity::SetWorld()
 	}
 }
 
-// STUB: LEGO1 0x100108a0
+// FUNCTION: LEGO1 0x100108a0
 void LegoEntity::SetROI(LegoROI* p_roi, MxBool p_bool1, MxBool p_bool2)
 {
-	// TODO
+	m_roi = p_roi;
+
+	if (m_roi != NULL) {
+		if (p_bool2) {
+			MxMatrix mat;
+			CalcLocalTransform(
+				Mx3DPointFloat(m_worldLocation[0], m_worldLocation[1], m_worldLocation[2]),
+				Mx3DPointFloat(m_worldDirection[0], m_worldDirection[1], m_worldDirection[2]),
+				Mx3DPointFloat(m_worldUp[0], m_worldUp[1], m_worldUp[2]),
+				mat
+			);
+
+			m_roi->FUN_100a46b0(mat);
+		}
+
+		m_roi->SetEntity(this);
+		VideoManager()->Get3DManager()->GetLego3DView()->Moved(*m_roi);
+
+		if (p_bool1) {
+			ClearFlag(c_bit1);
+		}
+		else {
+			SetFlag(c_bit1);
+		}
+	}
 }
 
-// STUB: LEGO1 0x100109b0
-void LegoEntity::SetLocation(const Vector3& p_location, const Vector3& p_direction, const Vector3& p_up, MxBool)
+// FUNCTION: LEGO1 0x100109b0
+void LegoEntity::SetLocation(const Vector3& p_location, const Vector3& p_direction, const Vector3& p_up, MxBool p_und)
 {
-	// TODO
+	Mx3DPointFloat direction;
+	Mx3DPointFloat up;
+
+	direction = p_direction;
+	direction.Unitize();
+
+	up = p_up;
+	up.Unitize();
+
+	m_worldLocation = p_location;
+	m_worldDirection = direction;
+	m_worldUp = up;
+
+	if (m_roi != NULL) {
+		MxMatrix mat;
+		CalcLocalTransform(
+			Mx3DPointFloat(p_location[0], p_location[1], p_location[2]),
+			Mx3DPointFloat(direction[0], direction[1], direction[2]),
+			Mx3DPointFloat(up[0], up[1], up[2]),
+			mat
+		);
+
+		m_roi->FUN_100a46b0(mat);
+		VideoManager()->Get3DManager()->GetLego3DView()->Moved(*m_roi);
+
+		if (p_und) {
+			FUN_10010c30();
+		}
+	}
 }
 
 // FUNCTION: LEGO1 0x10010c30
