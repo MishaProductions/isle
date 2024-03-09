@@ -1,7 +1,9 @@
 #include "legoentity.h"
 
 #include "define.h"
+#include "legobuildingmanager.h"
 #include "legoomni.h"
+#include "legoplantmanager.h"
 #include "legounksavedatawriter.h"
 #include "legoutil.h"
 #include "legovideomanager.h"
@@ -26,16 +28,45 @@ void LegoEntity::Init()
 	m_unk0x59 = 4;
 }
 
-// STUB: LEGO1 0x10010650
-void LegoEntity::ResetWorldTransform(MxBool p_inVehicle)
+// FUNCTION: LEGO1 0x10010650
+void LegoEntity::ResetWorldTransform(MxBool p_cameraFlag)
 {
-	// TODO
+	LegoWorld* world = CurrentWorld();
+
+	if (world != NULL && world->GetCamera() != NULL) {
+		m_cameraFlag = p_cameraFlag;
+
+		if (m_cameraFlag) {
+			world->GetCamera()->SetEntity(this);
+			world->GetCamera()->SetWorldTransform(
+				Mx3DPointFloat(0.0F, 1.25F, 0.0F),
+				Mx3DPointFloat(0.0F, 0.0F, 1.0F),
+				Mx3DPointFloat(0.0F, 1.0F, 0.0F)
+			);
+		}
+		else {
+			if (world->GetCamera()->GetEntity() == this) {
+				world->GetCamera()->SetEntity(NULL);
+				world->GetCamera()->SetWorldTransform(
+					Mx3DPointFloat(0.0F, 0.0F, 0.0F),
+					Mx3DPointFloat(0.0F, 0.0F, 1.0F),
+					Mx3DPointFloat(0.0F, 1.0F, 0.0F)
+				);
+			}
+		}
+	}
 }
 
-// STUB: LEGO1 0x10010790
-void LegoEntity::SetWorldTransform(const Vector3& p_loc, const Vector3& p_dir, const Vector3& p_up)
+// FUNCTION: LEGO1 0x10010790
+void LegoEntity::SetWorldTransform(const Vector3& p_location, const Vector3& p_direction, const Vector3& p_up)
 {
-	// TODO
+	LegoWorld* world = CurrentWorld();
+
+	if (world != NULL && world->GetCamera() != NULL) {
+		m_cameraFlag = TRUE;
+		world->GetCamera()->SetEntity(this);
+		world->GetCamera()->SetWorldTransform(p_location, p_direction, p_up);
+	}
 }
 
 // FUNCTION: LEGO1 0x100107e0
@@ -52,7 +83,7 @@ void LegoEntity::Destroy(MxBool p_fromDestructor)
 {
 	if (m_roi) {
 		if (m_flags & c_bit1) {
-			if (m_roi->GetUnknown0x104() == this) {
+			if (m_roi->GetEntity() == this) {
 				m_roi->SetEntity(NULL);
 			}
 
@@ -72,6 +103,7 @@ void LegoEntity::Destroy(MxBool p_fromDestructor)
 void LegoEntity::SetWorld()
 {
 	LegoWorld* world = CurrentWorld();
+
 	if (world != NULL && world != (LegoWorld*) this) {
 		world->Add(this);
 	}
@@ -174,10 +206,35 @@ void LegoEntity::ParseAction(char* p_extra)
 	}
 }
 
-// STUB: LEGO1 0x10010f10
-void LegoEntity::VTable0x34()
+// FUNCTION: LEGO1 0x10010f10
+void LegoEntity::VTable0x34(MxBool p_und)
 {
-	// TODO
+	if (!GetUnknown0x10IsSet(c_altBit1)) {
+		MxU32 objectId = 0;
+		const LegoChar* roiName = m_roi->GetName();
+
+		switch (m_unk0x59) {
+		case 0:
+			objectId = UnkSaveDataWriter()->FUN_10085140(m_roi, p_und);
+			break;
+		case 1:
+			break;
+		case 2:
+			objectId = PlantManager()->FUN_10026ba0(m_roi, p_und);
+			break;
+		case 3:
+			objectId = BuildingManager()->FUN_1002ff40(m_roi, p_und);
+			break;
+		}
+
+		if (objectId) {
+			MxDSAction action;
+			action.SetAtomId(MxAtomId(UnkSaveDataWriter()->GetCustomizeAnimFile(), e_lowerCase2));
+			action.SetObjectId(objectId);
+			action.AppendData(strlen(roiName) + 1, roiName);
+			Start(&action);
+		}
+	}
 }
 
 // STUB: LEGO1 0x10011070

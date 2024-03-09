@@ -2,43 +2,17 @@
 #define LEGOROI_H
 
 #include "misc/legotypes.h"
-#include "viewmanager/viewlod.h"
 #include "viewmanager/viewroi.h"
 
 typedef unsigned char (*ROIHandler)(const char*, char*, unsigned int);
 
 class LegoEntity;
 class LegoTextureContainer;
-struct LegoTextureInfo;
+class LegoTextureInfo;
 class LegoStorage;
 class LegoAnim;
-
-// VTABLE: LEGO1 0x100dbf10
-// SIZE 0x20
-class LegoLOD : public ViewLOD {
-public:
-	LegoLOD(Tgl::Renderer*);
-	~LegoLOD() override;
-
-	// FUNCTION: LEGO1 0x100aae70
-	int NumPolys() const override { return m_numPolys; } // vtable+0x0c
-
-	// FUNCTION: LEGO1 0x100aae80
-	float VTable0x10() override { return 0.0; } // vtable+0x10
-
-	LegoResult Read(Tgl::Renderer*, LegoTextureContainer* p_textureContainer, LegoStorage* p_storage);
-
-	// SYNTHETIC: LEGO1 0x100aa430
-	// LegoLOD::`scalar deleting destructor'
-
-protected:
-	// TODO: Review 1996 version
-	undefined4 m_unk0x0c; // 0x0c
-	undefined4 m_unk0x10; // 0x10
-	undefined4 m_unk0x14; // 0x14
-	LegoU32 m_numPolys;   // 0x18
-	undefined4 m_unk0x1c; // 0x1c
-};
+class LegoAnimNodeData;
+class LegoTreeNode;
 
 // VTABLE: LEGO1 0x100dbe38
 // SIZE 0x108
@@ -55,28 +29,33 @@ public:
 		LegoTextureContainer* p_textureContainer,
 		LegoStorage* p_storage
 	);
-	LegoResult FUN_100a9170(LegoFloat, LegoFloat, LegoFloat, LegoFloat);
-	LegoResult FUN_100a9210(LegoTextureInfo* p_textureInfo);
+	LegoROI* FUN_100a8ce0(const LegoChar* p_name, LegoROI* p_roi);
+	LegoResult FUN_100a8da0(LegoTreeNode* p_node, const Matrix4& p_matrix, LegoTime p_time, LegoROI* p_roi);
 	LegoResult SetFrame(LegoAnim* p_anim, LegoTime p_time);
+	LegoResult FUN_100a9170(LegoFloat p_red, LegoFloat p_green, LegoFloat p_blue, LegoFloat p_alpha);
+	LegoResult FUN_100a9210(LegoTextureInfo* p_textureInfo);
 
 	float IntrinsicImportance() const override; // vtable+0x04
 	void UpdateWorldBoundingVolumes() override; // vtable+0x18
 
 	void SetDisplayBB(int p_displayBB);
-	static void configureLegoROI(int p_roi);
 
+	static LegoResult FUN_100a8cb0(LegoAnimNodeData* p_data, LegoTime p_time, Matrix4& p_matrix);
+	static void FUN_100a81b0(const LegoChar* p_error, const LegoChar* p_name);
+	static void configureLegoROI(int p_roi);
 	static void FUN_100a9d30(ROIHandler p_func);
-	static unsigned char FUN_100a9bf0(const char* p_param, float& p_red, float& p_green, float& p_blue, float& p_other);
-	static unsigned char ColorAliasLookup(
-		const char* p_param,
+	static LegoBool FUN_100a9bf0(const LegoChar* p_param, float& p_red, float& p_green, float& p_blue, float& p_alpha);
+	static LegoBool ColorAliasLookup(
+		const LegoChar* p_param,
 		float& p_red,
 		float& p_green,
 		float& p_blue,
-		float& p_other
+		float& p_alpha
 	);
+	static LegoBool FUN_100a9cf0(const LegoChar* p_param, unsigned char* paletteEntries, LegoU32 p_numEntries);
 
 	inline const LegoChar* GetName() const { return m_name; }
-	inline LegoEntity* GetUnknown0x104() { return m_entity; }
+	inline LegoEntity* GetEntity() { return m_entity; }
 
 	inline void SetEntity(LegoEntity* p_entity) { m_entity = p_entity; }
 

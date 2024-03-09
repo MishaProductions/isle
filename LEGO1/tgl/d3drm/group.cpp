@@ -94,11 +94,10 @@ Result GroupImpl::Add(const Mesh* pMesh)
 }
 
 // FUNCTION: LEGO1 0x100a3450
-Result GroupImpl::Remove(const Mesh* pMesh)
+Result GroupImpl::Remove(const MeshBuilder* pMeshBuilder)
 {
-	const MeshImpl* pMeshImpl = static_cast<const MeshImpl*>(pMesh);
-	// TODO: Incorrect structure
-	return ResultVal(m_data->DeleteVisual((IDirect3DRMMesh*) pMeshImpl->ImplementationData()));
+	const MeshBuilderImpl* pMeshBuilderImpl = static_cast<const MeshBuilderImpl*>(pMeshBuilder);
+	return ResultVal(m_data->DeleteVisual(pMeshBuilderImpl->ImplementationData()));
 }
 
 // FUNCTION: LEGO1 0x100a3480

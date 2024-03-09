@@ -1,6 +1,7 @@
 #ifndef LEGOPARTPRESENTER_H
 #define LEGOPARTPRESENTER_H
 
+#include "legonamedpartlist.h"
 #include "mxmediapresenter.h"
 
 // VTABLE: LEGO1 0x100d4df0
@@ -34,15 +35,15 @@ public:
 	// SYNTHETIC: LEGO1 0x1000d060
 	// LegoPartPresenter::`scalar deleting destructor'
 
-	inline void Reset() { m_partData = NULL; }
+	inline void Reset() { m_parts = NULL; }
 
 	MxResult Read(MxDSChunk& p_chunk);
-	void FUN_1007df20();
+	void Store();
 
 private:
 	void Destroy(MxBool p_fromDestructor);
 
-	MxDSChunk* m_partData; // 0x54
+	LegoNamedPartList* m_parts; // 0x50
 };
 
 #endif // LEGOPARTPRESENTER_H
