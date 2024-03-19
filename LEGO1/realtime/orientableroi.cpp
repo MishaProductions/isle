@@ -66,10 +66,35 @@ void OrientableROI::WrappedVTable0x24(const Matrix4& p_transform)
 	VTable0x24(p_transform);
 }
 
-// STUB: LEGO1 0x100a50a0
+// FUNCTION: LEGO1 0x100a50a0
 void OrientableROI::GetLocalTransform(Matrix4& p_transform)
 {
-	p_transform = m_local2world;
+	MxMatrix mat;
+
+	if (m_parentROI != NULL) {
+		double local2parent[4][4];
+		unsigned int i, j;
+
+		for (i = 0; i < 4; i++) {
+			for (j = 0; j < 4; j++) {
+				local2parent[i][j] = m_parentROI->GetLocal2World()[i][j];
+			}
+		}
+
+		double local_inverse[4][4];
+		INVERTMAT4d(local_inverse, local2parent);
+
+		for (i = 0; i < 4; i++) {
+			for (j = 0; j < 4; j++) {
+				mat[i][j] = local_inverse[i][j];
+			}
+		}
+
+		MXM4(p_transform, m_local2world, mat);
+	}
+	else {
+		p_transform = m_local2world;
+	}
 }
 
 // FUNCTION: LEGO1 0x100a58f0
@@ -129,6 +154,32 @@ void OrientableROI::FUN_100a5a30(const Vector3& p_world_velocity)
 // FUNCTION: LEGO1 0x100a5a50
 void OrientableROI::UpdateWorldVelocity()
 {
+}
+
+// FUNCTION: LEGO1 0x100a5a60
+void CalcWorldBoundingVolumes(
+	const BoundingSphere& modelling_sphere,
+	const Matrix4& local2world,
+	BoundingBox& world_bounding_box,
+	BoundingSphere& world_bounding_sphere
+)
+{
+	// calculate world bounding volumes given a bounding sphere in modelling
+	// space and local2world transform
+
+	// ??? we need to transform the radius too... if scaling...
+
+	V3XM4(world_bounding_sphere.Center(), modelling_sphere.Center(), local2world);
+
+	world_bounding_sphere.Radius() = modelling_sphere.Radius();
+
+	// update world_bounding_box
+	world_bounding_box.Min()[0] = world_bounding_sphere.Center()[0] - world_bounding_sphere.Radius();
+	world_bounding_box.Min()[1] = world_bounding_sphere.Center()[1] - world_bounding_sphere.Radius();
+	world_bounding_box.Min()[2] = world_bounding_sphere.Center()[2] - world_bounding_sphere.Radius();
+	world_bounding_box.Max()[0] = world_bounding_sphere.Center()[0] + world_bounding_sphere.Radius();
+	world_bounding_box.Max()[1] = world_bounding_sphere.Center()[1] + world_bounding_sphere.Radius();
+	world_bounding_box.Max()[2] = world_bounding_sphere.Center()[2] + world_bounding_sphere.Radius();
 }
 
 // FUNCTION: LEGO1 0x100a5d80

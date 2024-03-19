@@ -6,6 +6,7 @@
 #include "legolod.h"
 #include "misc/legocontainer.h"
 #include "misc/legostorage.h"
+#include "realtime/realtime.h"
 
 #include <string.h>
 #include <vec.h>
@@ -338,7 +339,7 @@ done:
 LegoResult LegoROI::FUN_100a8cb0(LegoAnimNodeData* p_data, LegoTime p_time, Matrix4& p_matrix)
 {
 	p_matrix.SetIdentity();
-	p_data->FUN_100a03c0(p_time, p_matrix);
+	p_data->CreateLocalTransform(p_time, p_matrix);
 	return SUCCESS;
 }
 
@@ -476,6 +477,12 @@ TimeROI::TimeROI(Tgl::Renderer* p_renderer, ViewLODList* p_lodList, LegoTime p_t
 	m_time = p_time;
 }
 
+// STUB: LEGO1 0x100a9b40
+void TimeROI::FUN_100a9b40(Matrix4& p_matrix, LegoTime p_time)
+{
+	// TODO
+}
+
 // FUNCTION: LEGO1 0x100a9bf0
 LegoBool LegoROI::FUN_100a9bf0(const LegoChar* p_param, float& p_red, float& p_green, float& p_blue, float& p_alpha)
 {
@@ -539,8 +546,8 @@ float LegoROI::IntrinsicImportance() const
 	return .5;
 }
 
-// STUB: LEGO1 0x100aa350
+// FUNCTION: LEGO1 0x100aa350
 void LegoROI::UpdateWorldBoundingVolumes()
 {
-	// TODO
+	CalcWorldBoundingVolumes(m_sphere, m_local2world, m_world_bounding_box, m_world_bounding_sphere);
 }

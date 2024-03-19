@@ -6,6 +6,7 @@
 #include "mxtimer.h"
 #include "mxtransitionmanager.h"
 #include "realtime/matrix.h"
+#include "realtime/realtime.h"
 #include "roi/legoroi.h"
 #include "tgl/d3drm/impl.h"
 #include "viewmanager/viewroi.h"
@@ -380,6 +381,20 @@ MxResult LegoVideoManager::RealizePalette(MxPalette* p_pallete)
 	}
 
 	return SUCCESS;
+}
+
+// FUNCTION: LEGO1 0x1007c2d0
+MxResult LegoVideoManager::ResetPalette(MxBool p_ignoreSkyColor)
+{
+	MxResult result = FAILURE;
+
+	if (m_videoParam.GetPalette() != NULL) {
+		m_videoParam.GetPalette()->Reset(p_ignoreSkyColor);
+		m_displaySurface->SetPalette(m_videoParam.GetPalette());
+		result = SUCCESS;
+	}
+
+	return result;
 }
 
 // FUNCTION: LEGO1 0x1007c300

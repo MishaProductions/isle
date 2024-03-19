@@ -237,7 +237,7 @@ void MxBackgroundAudioManager::StopAction(MxParam& p_param)
 		m_action2.SetObjectId(-1);
 	}
 
-	Lego()->HandleActionEnd(p_param);
+	Lego()->HandleEndAction(p_param);
 }
 
 // FUNCTION: LEGO1 0x1007f2f0
