@@ -182,3 +182,30 @@ void LegoView1::Destroy()
 
 	LegoView::Destroy();
 }
+
+Tgl::Result SetLightTransform(Tgl::Light* p_light, Tgl::FloatMatrix4& matrix);
+Tgl::Result SetLightColor(Tgl::Light* p_light, float p_r, float p_b, float p_g);
+
+// FUNCTION: LEGO1 0x100abb60
+Tgl::Result LegoView1::SetLightingTransform(int p_useDirectionalLighting, Tgl::FloatMatrix4& matrix)
+{
+	return SetLightTransform(p_useDirectionalLighting == 0 ? m_pSunLight : m_pDirectionalLight, matrix);
+}
+
+// FUNCTION: LEGO1 0x100abb80
+Tgl::Result SetLightTransform(Tgl::Light* p_light, Tgl::FloatMatrix4& matrix)
+{
+	return p_light->SetTransformation(matrix);
+}
+
+// FUNCTION: LEGO1 0x100abba0
+Tgl::Result LegoView1::SetLightingColor(int p_useDirectionalLighting, float p_r, float p_b, float p_g)
+{
+	return SetLightColor(p_useDirectionalLighting == 0 ? m_pSunLight : m_pDirectionalLight, p_r, p_b, p_g);
+}
+
+// FUNCTION: LEGO1 0x100abbd0
+Tgl::Result SetLightColor(Tgl::Light* p_light, float p_r, float p_b, float p_g)
+{
+	return p_light->SetColor(p_r, p_b, p_g);
+}

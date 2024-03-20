@@ -113,9 +113,27 @@ void LegoBackgroundColor::ToggleSkyColor()
 	SetLights(convertedR, convertedG, convertedB);
 }
 
-// STUB: LEGO1 0x1003c400
+// FUNCTION: LEGO1 0x1003c400
 void LegoBackgroundColor::SetLights(float p_r, float p_g, float p_b)
 {
+	if (!VideoManager()->GetVideoParam().Flags().GetF2bit0()) {
+		p_r *= 4.3478260869565215;
+		p_g *= 1.5873015873015872;
+		p_b *= 1.1764705882352942;
+
+		if (p_r > 1.0) {
+			p_r = 1.0f;
+		}
+		if (p_g > 1.0) {
+			p_g = 1.0f;
+		}
+		if (p_b > 1.0) {
+			p_b = 1.0;
+		}
+
+		VideoManager()->Get3DManager()->GetLego3DView()->SetLightingColor(0, p_r, p_g, p_b);
+		VideoManager()->Get3DManager()->GetLego3DView()->SetLightingColor(1, p_r, p_g, p_b);
+	}
 }
 
 // FUNCTION: LEGO1 0x1003c4b0

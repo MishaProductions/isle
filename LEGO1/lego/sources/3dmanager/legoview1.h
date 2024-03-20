@@ -64,6 +64,9 @@ public:
 	BOOL Create(const TglSurface::CreateStruct&, Tgl::Renderer*);
 	void Destroy() override; // vtable+0x08
 
+	Tgl::Result SetLightingTransform(int p_useDirectionalLighting, Tgl::FloatMatrix4& matrix);
+	Tgl::Result SetLightingColor(int p_useDirectionalLighting, float p_r, float p_b, float p_g);
+
 private:
 	Tgl::Light* m_pSunLight;         // 0x78
 	Tgl::Light* m_pDirectionalLight; // 0x7c
