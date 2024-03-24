@@ -591,6 +591,7 @@ void MxDisplaySurface::FUN_100bb500(
 )
 {
 	// TODO
+	OutputDebugString("MxDisplaySurface::FUN_100bb500 STUB\n");
 }
 
 // STUB: LEGO1 0x100bb850
