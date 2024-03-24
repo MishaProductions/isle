@@ -1,5 +1,7 @@
 #include "legopathcontroller.h"
 
+DECOMP_SIZE_ASSERT(LegoPathController, 0x40)
+
 // STUB: LEGO1 0x10044f40
 LegoPathController::LegoPathController()
 {
@@ -26,7 +28,7 @@ MxResult LegoPathController::Tickle()
 }
 
 // STUB: LEGO1 0x10046770
-undefined4 LegoPathController::FUN_10046770(IslePathActor* p_actor)
+undefined4 LegoPathController::FUN_10046770(LegoPathActor* p_actor)
 {
 	return 0;
 }

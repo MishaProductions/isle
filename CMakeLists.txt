@@ -282,6 +282,8 @@ add_library(lego1 SHARED
   LEGO1/lego/legoomni/src/act2/legoact2state.cpp
   LEGO1/lego/legoomni/src/act3/act3shark.cpp
   LEGO1/lego/legoomni/src/act3/act3state.cpp
+  LEGO1/lego/legoomni/src/actors/act2actor.cpp
+  LEGO1/lego/legoomni/src/actors/act3actor.cpp
   LEGO1/lego/legoomni/src/actors/ambulance.cpp
   LEGO1/lego/legoomni/src/actors/bike.cpp
   LEGO1/lego/legoomni/src/actors/bumpbouy.cpp
@@ -317,6 +319,7 @@ add_library(lego1 SHARED
   LEGO1/lego/legoomni/src/common/legoanimmmpresenter.cpp
   LEGO1/lego/legoomni/src/common/legobackgroundcolor.cpp
   LEGO1/lego/legoomni/src/common/legocharactermanager.cpp
+  LEGO1/lego/legoomni/src/common/legocharacters.cpp
   LEGO1/lego/legoomni/src/common/legofullscreenmovie.cpp
   LEGO1/lego/legoomni/src/common/legogamestate.cpp
   LEGO1/lego/legoomni/src/common/legoobjectfactory.cpp
@@ -336,6 +339,7 @@ add_library(lego1 SHARED
   LEGO1/lego/legoomni/src/entity/legoactor.cpp
   LEGO1/lego/legoomni/src/entity/legoactorpresenter.cpp
   LEGO1/lego/legoomni/src/entity/legocameracontroller.cpp
+  LEGO1/lego/legoomni/src/entity/legocameralocations.cpp
   LEGO1/lego/legoomni/src/entity/legocarraceactor.cpp
   LEGO1/lego/legoomni/src/entity/legoentity.cpp
   LEGO1/lego/legoomni/src/entity/legoentitypresenter.cpp
@@ -360,6 +364,7 @@ add_library(lego1 SHARED
   LEGO1/lego/legoomni/src/main/legoomni.cpp
   LEGO1/lego/legoomni/src/notify/legoeventnotificationparam.cpp
   LEGO1/lego/legoomni/src/paths/legoanimactor.cpp
+  LEGO1/lego/legoomni/src/paths/legoextraactor.cpp
   LEGO1/lego/legoomni/src/paths/legopathactor.cpp
   LEGO1/lego/legoomni/src/paths/legopathcontroller.cpp
   LEGO1/lego/legoomni/src/paths/legopathpresenter.cpp
@@ -372,7 +377,9 @@ add_library(lego1 SHARED
   LEGO1/lego/legoomni/src/race/legorace.cpp
   LEGO1/lego/legoomni/src/race/legoraceactor.cpp
   LEGO1/lego/legoomni/src/race/legoracecar.cpp
+  LEGO1/lego/legoomni/src/race/legoracemap.cpp
   LEGO1/lego/legoomni/src/race/racestandsentity.cpp
+  LEGO1/lego/legoomni/src/race/raceskel.cpp
   LEGO1/lego/legoomni/src/race/racestate.cpp
   LEGO1/lego/legoomni/src/towtrack/towtrackmissionstate.cpp
   LEGO1/lego/legoomni/src/unknown/legounknown100d7c88.cpp
