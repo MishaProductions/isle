@@ -70,8 +70,8 @@ public:
 		float p_rs,
 		MxBool p_urs
 	);
-	static void SetLocation(MxU32 p_location);
-	static void UpdateCameraLocation(const char* p_location);
+	static MxResult UpdateCameraLocation(MxU32 p_location);
+	static MxResult UpdateCameraLocation(const char* p_location);
 
 	// SYNTHETIC: LEGO1 0x10054c10
 	// LegoNavController::`scalar deleting destructor'
@@ -81,8 +81,8 @@ protected:
 	float CalculateNewTargetVel(int p_pos, int p_center, float p_max);
 	float CalculateNewAccel(int p_pos, int p_center, float p_max, int p_min);
 
-	int FUN_10055750(MxBool& p_und);
-	int FUN_100558b0();
+	MxResult ProcessJoystickInput(MxBool& p_und);
+	MxResult ProcessKeyboardInput();
 
 	int m_hMax;                  // 0x08
 	int m_vMax;                  // 0x0c

@@ -11,9 +11,9 @@
 #include "tgl/d3drm/impl.h"
 #include "viewmanager/viewroi.h"
 
-DECOMP_SIZE_ASSERT(LegoVideoManager, 0x590);
-DECOMP_SIZE_ASSERT(MxStopWatch, 0x18);
-DECOMP_SIZE_ASSERT(MxFrequencyMeter, 0x20);
+DECOMP_SIZE_ASSERT(LegoVideoManager, 0x590)
+DECOMP_SIZE_ASSERT(MxStopWatch, 0x18)
+DECOMP_SIZE_ASSERT(MxFrequencyMeter, 0x20)
 
 // FUNCTION: LEGO1 0x1007aa20
 LegoVideoManager::LegoVideoManager()
@@ -240,6 +240,19 @@ void LegoVideoManager::MoveCursor(MxS32 p_cursorX, MxS32 p_cursorY)
 
 	if (463 < p_cursorY) {
 		m_cursorY = 463;
+	}
+}
+
+// FUNCTION: LEGO1 0x1007b6f0
+void LegoVideoManager::ToggleFPS(MxBool p_visible)
+{
+	if (p_visible && !m_drawFPS) {
+		m_drawFPS = TRUE;
+		m_unk0x550 = 1.0;
+		m_unk0x54c = Timer()->GetTime();
+	}
+	else {
+		m_drawFPS = p_visible;
 	}
 }
 
