@@ -50,12 +50,19 @@ private:
 	undefined4 m_unk0x0c;                                                // 0x0c
 	undefined4 m_unk0x10;                                                // 0x10
 	undefined4 m_unk0x14;                                                // 0x14
-	MxS16 m_numL;                                                        // 0x18
-	MxS16 m_numE;                                                        // 0x1a
-	MxS16 m_numN;                                                        // 0x1c
-	MxS16 m_numT;                                                        // 0x1e
-	map<undefined*, undefined*, LegoPathControllerComparator> m_pfsE;    // 0x20
+	MxS16 m_unk0x18;                                                     // 0x18
+	MxS16 m_unk0x1a;                                                     // 0x1a
+	MxS16 m_unk0x1c;                                                     // 0x1c
+	MxS16 m_unk0x1e;                                                     // 0x1e
+	map<undefined*, undefined*, LegoPathControllerComparator> m_unk0x20; // 0x20
 	map<undefined*, undefined*, LegoPathControllerComparator> m_unk0x30; // 0x30
 };
+
+// clang-format off
+
+// GLOBAL: LEGO1 0x100f4360
+// _Tree<LegoPathActor *,LegoPathActor *,set<LegoPathActor *,LegoPathActorSetCompare,allocator<LegoPathActor *> >::_Kfn,LegoPathActorSetCompare,allocator<LegoPathActor *> >::_Nil
+
+// clang-format on
 
 #endif // LEGOPATHCONTROLLER_H
