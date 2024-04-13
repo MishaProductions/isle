@@ -117,7 +117,7 @@ MxLong MxCompositePresenter::Notify(MxParam& p_param)
 
 	switch (((MxNotificationParam&) p_param).GetNotification()) {
 	case c_notificationEndAction:
-		OutputDebugString("[MxCompositePresenter]: Action ended\n");
+		// OutputDebugString("[MxCompositePresenter]: Action ended\n");
 		VTable0x58((MxEndActionNotificationParam&) p_param);
 		break;
 	case c_notificationPresenter:
@@ -161,11 +161,10 @@ void MxCompositePresenter::VTable0x58(MxEndActionNotificationParam& p_param)
 	}
 
 	if (m_list.empty()) {
-		OutputDebugString("[MxCompositePresenter]: List empty, ending action\n");
 		EndAction();
 	}
 	else {
-		OutputDebugString("[MxCompositePresenter]: List NOT empty, reset pressenters\n");
+		/*OutputDebugString("[MxCompositePresenter]: List NOT empty, reset pressenters\n");
 
 		for (MxCompositePresenterList::iterator it2 = m_list.begin(); it2 != m_list.end(); it2++) {
 			{
@@ -181,7 +180,7 @@ void MxCompositePresenter::VTable0x58(MxEndActionNotificationParam& p_param)
 			}
 		}
 
-		OutputDebugString("End of presenter dump\n");
+		OutputDebugString("End of presenter dump\n");*/
 
 		if (m_action->IsA("MxDSSerialAction") && it != m_list.end()) {
 			MxPresenter* presenter = *it;

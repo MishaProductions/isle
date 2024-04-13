@@ -215,12 +215,7 @@ void MxBackgroundAudioManager::StartAction(MxParam& p_param)
 	m_action2.SetAtomId(m_unk0x138->GetAction()->GetAtomId());
 	m_action2.SetObjectId(m_unk0x138->GetAction()->GetObjectId());
 	m_targetVolume = ((MxDSSound*) (m_unk0x138->GetAction()))->GetVolume();
-
-	OutputDebugString("crash here\n");
-
-	{char cad[512]; sprintf(cad, "presenter is actually a %s\n", m_unk0x138->ClassName());  OutputDebugString(cad);}
 	m_unk0x138->SetVolume(0);
-	OutputDebugString("not crash\n");
 }
 
 // FUNCTION: LEGO1 0x1007f200

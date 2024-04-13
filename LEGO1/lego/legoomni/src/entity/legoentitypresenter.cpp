@@ -10,12 +10,6 @@ DECOMP_SIZE_ASSERT(LegoEntityPresenter, 0x50)
 LegoEntityPresenter::LegoEntityPresenter()
 {
 	Init();
-
-	{
-		char cad[512];
-		sprintf(cad, "LegoEntityPresenter::LegoEntityPresenter\n");
-		OutputDebugString(cad);
-	}
 }
 
 // FUNCTION: LEGO1 0x100535c0

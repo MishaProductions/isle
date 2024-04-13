@@ -36,8 +36,6 @@ MxControlPresenter::MxControlPresenter()
 	this->m_unk0x52 = 0;
 	this->m_unk0x58 = 0;
 	this->m_unk0x54 = 0;
-
-	OutputDebugString("MxControlPresenter is a STUB class \n");
 }
 
 // FUNCTION: LEGO1 0x10043fd0

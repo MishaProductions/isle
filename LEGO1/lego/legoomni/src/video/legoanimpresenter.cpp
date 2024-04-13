@@ -56,6 +56,7 @@ void LegoAnimPresenter::Init()
 void LegoAnimPresenter::Destroy(MxBool p_fromDestructor)
 {
 	// TODO
+	OutputDebugStringA("LegoAnimPresenter::Destroy STUB\n");
 	MxVideoPresenter::Destroy(p_fromDestructor);
 }
 
@@ -508,6 +509,7 @@ done:
 void LegoAnimPresenter::FUN_1006ac90()
 {
 	// TODO
+	OutputDebugStringA("LegoAnimPresenter::FUN_1006ac90 STUB\n");
 }
 
 // FUNCTION: LEGO1 0x1006ad30
@@ -727,12 +729,14 @@ void LegoAnimPresenter::FUN_1006b9a0(LegoAnim* p_anim, MxLong p_time, Matrix4* p
 void LegoAnimPresenter::ParseExtra()
 {
 	// TODO
+	OutputDebugStringA("LegoAnimPresenter::ParseExtra STUB\n");
 }
 
 // STUB: LEGO1 0x1006c570
 void LegoAnimPresenter::VTable0xa0()
 {
 	// TODO
+	OutputDebugStringA("LegoAnimPresenter::VTable0xa0 STUB\n");
 }
 
 // FUNCTION: LEGO1 0x1006c620
@@ -748,18 +752,21 @@ void LegoAnimPresenter::EndAction()
 {
 	// TODO
 	MxVideoPresenter::EndAction();
+	OutputDebugStringA("LegoAnimPresenter::EndAction STUB\n");
 }
 
 // STUB: LEGO1 0x1006c7d0
 void LegoAnimPresenter::VTable0x8c()
 {
 	// TODO
+	OutputDebugStringA("LegoAnimPresenter::VTable0x8c STUB\n");
 }
 
 // STUB: LEGO1 0x1006c860
 void LegoAnimPresenter::VTable0x90()
 {
 	// TODO
+	OutputDebugStringA("LegoAnimPresenter::VTable0x90 STUB\n");
 }
 
 // FUNCTION: LEGO1 0x1006c8a0
@@ -785,16 +792,19 @@ void LegoAnimPresenter::FUN_1006c8a0(MxBool p_bool)
 void LegoAnimPresenter::VTable0x94()
 {
 	// TODO
+	OutputDebugStringA("LegoAnimPresenter::VTable0x94 STUB\n");
 }
 
 // STUB: LEGO1 0x1006ca50
 void LegoAnimPresenter::VTable0x98()
 {
 	// TODO
+	OutputDebugStringA("LegoAnimPresenter::VTable0x98 STUB\n");
 }
 
 // STUB: LEGO1 0x1006d680
 void LegoAnimPresenter::FUN_1006d680(LegoAnimActor* p_actor, MxFloat p_value)
 {
 	// TODO
+	OutputDebugStringA("LegoAnimPresenter::FUN_1006d680 STUB\n");
 }
