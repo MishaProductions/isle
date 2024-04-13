@@ -1,5 +1,8 @@
 #include "legoutils.h"
 
+#include "act1state.h"
+#include "islepathactor.h"
+#include "legogamestate.h"
 #include "legoinputmanager.h"
 #include "legonamedtexture.h"
 #include "legoomni.h"
@@ -11,9 +14,11 @@
 #include "mxnotificationmanager.h"
 #include "mxstreamer.h"
 #include "mxtypes.h"
+#include "realtime/realtime.h"
 
 #include <process.h>
 #include <string.h>
+#include <vec.h>
 
 // STUB: LEGO1 0x1003e050
 void FUN_1003e050(LegoAnimPresenter* p_presenter)
@@ -238,6 +243,12 @@ void ConvertHSVToRGB(float p_h, float p_s, float p_v, float* p_rOut, float* p_bO
 	}
 }
 
+// STUB: LEGO1 0x1003eda0
+void FUN_1003eda0()
+{
+	// TODO
+}
+
 // FUNCTION: LEGO1 0x1003ee00
 MxBool RemoveFromCurrentWorld(MxAtomId& p_atomId, MxS32 p_id)
 {
@@ -309,28 +320,123 @@ void SetAppCursor(WPARAM p_wparam)
 	PostMessageA(MxOmni::GetInstance()->GetWindowHandle(), 0x5400, p_wparam, 0);
 }
 
-// STUB: LEGO1 0x1003ef60
+// FUNCTION: LEGO1 0x1003ef60
 MxBool FUN_1003ef60()
 {
-	return TRUE;
+	Act1State* act1State = (Act1State*) GameState()->GetState("Act1State");
+
+	if (GameState()->m_currentArea != LegoGameState::e_elevride &&
+		GameState()->m_currentArea != LegoGameState::e_elevride2 &&
+		GameState()->m_currentArea != LegoGameState::e_elevopen &&
+		GameState()->m_currentArea != LegoGameState::e_seaview &&
+		GameState()->m_currentArea != LegoGameState::e_observe &&
+		GameState()->m_currentArea != LegoGameState::e_elevdown &&
+		GameState()->m_currentArea != LegoGameState::e_garadoor &&
+		GameState()->m_currentArea != LegoGameState::e_polidoor) {
+
+		if (CurrentActor() == NULL || !CurrentActor()->IsA("TowTrack")) {
+			if (CurrentActor() == NULL || !CurrentActor()->IsA("Ambulance")) {
+				MxU32 unk0x18 = act1State->GetUnknown18();
+
+				if (unk0x18 != 10 && unk0x18 != 8 && unk0x18 != 3) {
+					return TRUE;
+				}
+			}
+		}
+	}
+
+	return FALSE;
 }
 
-// STUB: LEGO1 0x1003f050
-MxS32 FUN_1003f050(MxS32)
+// FUNCTION: LEGO1 0x1003f050
+MxS32 UpdateLightPosition(MxS32 p_increase)
 {
-	// TODO
-	return 0;
+	MxS32 lightPosition = atoi(VariableTable()->GetVariable("lightposition"));
+
+	// Only ever increases by 1 irrespective of p_increase
+	if (p_increase > 0) {
+		lightPosition += 1;
+		if (lightPosition > 5) {
+			lightPosition = 5;
+		}
+	}
+	else {
+		lightPosition -= 1;
+		if (lightPosition < 0) {
+			lightPosition = 0;
+		}
+	}
+
+	SetLightPosition(lightPosition);
+
+	char lightPositionBuffer[32];
+	sprintf(lightPositionBuffer, "%d", lightPosition);
+
+	VariableTable()->SetVariable("lightposition", lightPositionBuffer);
+
+	return lightPosition;
 }
 
-// STUB: LEGO1 0x1003f0d0
-void SetLightPosition(MxU32)
+// FUNCTION: LEGO1 0x1003f0d0
+void SetLightPosition(MxS32 p_index)
 {
+	float lights[6][6] = {
+		{1.0, 0.0, 0.0, -150.0, 50.0, -50.0},
+		{0.809, -0.588, 0.0, -75.0, 50.0, -50.0},
+		{0.0, -1.0, 0.0, 0.0, 150.0, -150.0},
+		{-0.309, -0.951, 0.0, 25.0, 50.0, -50.0},
+		{-0.809, -0.588, 0.0, 75.0, 50.0, -50.0},
+		{-1.0, 0.0, 0.0, 150.0, 50.0, -50.0}
+	};
+
+	Mx3DPointFloat up(1.0, 0.0, 0.0);
+	Mx3DPointFloat direction;
+	Mx3DPointFloat position;
+
+	Tgl::FloatMatrix4 matrix;
+	Matrix4 in(matrix);
+	MxMatrix transform;
+
+	if (p_index < 0) {
+		p_index = 0;
+	}
+	else if (p_index > 5) {
+		p_index = 5;
+	}
+
+	direction = lights[p_index];
+	position = &lights[p_index][3];
+
+	CalcLocalTransform(position, direction, up, transform);
+	SETMAT4(in, transform);
+
+	VideoManager()->Get3DManager()->GetLego3DView()->SetLightTransform(FALSE, matrix);
+	VideoManager()->Get3DManager()->GetLego3DView()->SetLightTransform(TRUE, matrix);
 }
 
-// STUB: LEGO1 0x1003f3b0
+// FUNCTION: LEGO1 0x1003f3b0
 LegoNamedTexture* ReadNamedTexture(LegoFile* p_file)
 {
-	return NULL;
+	LegoTexture* texture = NULL;
+	LegoNamedTexture* namedTexture = NULL;
+	MxString string;
+
+	p_file->ReadString(string);
+
+	texture = new LegoTexture();
+	if (texture != NULL) {
+		if (texture->Read(p_file, 0) != SUCCESS) {
+			delete texture;
+			return namedTexture;
+		}
+
+		namedTexture = new LegoNamedTexture(string.GetData(), texture);
+		if (namedTexture == NULL) {
+			delete texture;
+		}
+	}
+
+	return namedTexture;
 }
 
 // STUB: LEGO1 0x1003f540

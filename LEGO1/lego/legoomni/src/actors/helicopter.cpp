@@ -41,7 +41,7 @@ MxResult Helicopter::Create(MxDSAction& p_dsAction)
 	LegoWorld* world = CurrentWorld();
 	SetWorld(world);
 	if (world->IsA("Act3")) {
-		((Act3*) GetWorld())->SetUnkown420c(this);
+		((Act3*) GetWorld())->SetUnknown420c(this);
 	}
 	world = GetWorld();
 	if (world) {
@@ -120,7 +120,7 @@ MxU32 Helicopter::VTable0xcc()
 		((Isle*) CurrentWorld())->SetDestLocation(LegoGameState::e_copter);
 		FUN_10015820(TRUE, 0);
 		TransitionManager()->StartTransition(MxTransitionManager::e_mosaic, 50, FALSE, TRUE);
-		SetUnknownDC(4);
+		SetState(4);
 		PlayMusic(JukeboxScript::c_Jail_Music);
 		break;
 	case LegoGameState::e_act2:
@@ -160,7 +160,7 @@ MxU32 Helicopter::VTable0xd4(LegoControlManagerEvent& p_param)
 		switch (p_param.GetClickedObjectId()) {
 		case IsleScript::c_HelicopterArms_Ctl:
 			if (*g_act3Script == script) {
-				((Act3*) CurrentWorld())->SetUnkown4270(2);
+				((Act3*) CurrentWorld())->SetUnknown4270(2);
 				TransitionManager()->StartTransition(MxTransitionManager::e_mosaic, 50, FALSE, FALSE);
 			}
 			else if (m_state->GetUnkown8() != 0) {
@@ -180,7 +180,7 @@ MxU32 Helicopter::VTable0xd4(LegoControlManagerEvent& p_param)
 				m_state->SetUnknown8(1);
 				m_world->FUN_1001fc80(this);
 				InvokeAction(Extra::ActionType::e_start, script, 0x20, NULL);
-				SetUnknownDC(0);
+				SetState(0);
 			}
 			ret = 1;
 			break;
@@ -193,7 +193,7 @@ MxU32 Helicopter::VTable0xd4(LegoControlManagerEvent& p_param)
 				m_state->SetUnknown8(3);
 				m_world->FUN_1001fc80(this);
 				InvokeAction(Extra::ActionType::e_start, script, 0x21, NULL);
-				SetUnknownDC(4);
+				SetState(4);
 			}
 			ret = 1;
 			break;
@@ -217,8 +217,8 @@ MxU32 Helicopter::VTable0xd4(LegoControlManagerEvent& p_param)
 				lookat.Add(&loc);
 				Mx3DPointFloat v68, v7c, v90(0, 1, 0), va4;
 				v68 = m_world->GetCamera()->GetWorldUp();
-				va4.EqualsCross(v68, dir);
-				v7c.EqualsCross(va4, v90);
+				va4.EqualsCross(&v68, &dir);
+				v7c.EqualsCross(&va4, &v90);
 				if (ret) {
 					if (((Act3*) m_world)->FUN_100727e0(m_controller, loc, dir, v7c)) {
 						break;
@@ -311,7 +311,7 @@ MxU32 Helicopter::VTable0xd8(MxType18NotificationParam& p_param)
 // FUNCTION: LEGO1 0x10003e90
 void Helicopter::VTable0x74(Matrix4& p_transform)
 {
-	if (m_unk0xea != 0) {
+	if (m_userNavFlag) {
 		m_roi->FUN_100a46b0(p_transform);
 		FUN_10010c30();
 	}
@@ -366,7 +366,7 @@ void Helicopter::VTable0x70(float p_float)
 			else {
 				((Act3*) m_world)->FUN_10073430();
 			}
-			m_unk0xdc = 4;
+			LegoPathActor::m_state = 4;
 		}
 	}
 }

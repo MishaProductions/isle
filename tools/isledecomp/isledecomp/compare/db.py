@@ -73,6 +73,7 @@ logger = logging.getLogger(__name__)
 
 
 class CompareDb:
+    # pylint: disable=too-many-public-methods
     def __init__(self):
         self._db = sqlite3.connect(":memory:")
         self._db.executescript(_SETUP_SQL)
@@ -220,6 +221,29 @@ class CompareDb:
         """For lineref match or _entry"""
         return self.set_pair(orig, recomp, SymbolType.FUNCTION)
 
+    def register_thunk(self, orig: int, recomp: int, name: str) -> bool:
+        """orig/recomp are an address pair of a thunk to some other function.
+        We may or may not already have this function tracked in the db.
+        If not, we need to create it, and we will use the name
+        (of the function being thunked, presumably) to mock up a name for
+        this symbol."""
+
+        # Start by assuming the row exists
+        if self.set_function_pair(orig, recomp):
+            return True
+
+        thunk_name = f"Thunk of '{name}'"
+
+        # Assuming relative jump instruction for thunks (5 bytes)
+        cur = self._db.execute(
+            """INSERT INTO `symbols`
+            (orig_addr, recomp_addr, compare_type, name, size)
+            VALUES (?,?,?,?,?)""",
+            (orig, recomp, SymbolType.FUNCTION.value, thunk_name, 5),
+        )
+
+        return cur.rowcount > 0
+
     def _set_opt_bool(self, addr: int, option: str, enabled: bool = True):
         if enabled:
             self._db.execute(
@@ -348,6 +372,21 @@ class CompareDb:
 
         return self.set_pair(addr, recomp_addr, compare_type)
 
+    def get_next_orig_addr(self, addr: int) -> Optional[int]:
+        """Return the original address (matched or not) that follows
+        the one given. If our recomp function size would cause us to read
+        too many bytes for the original function, we can adjust it."""
+        result = self._db.execute(
+            """SELECT orig_addr
+            FROM `symbols`
+            WHERE orig_addr > ?
+            ORDER BY orig_addr
+            LIMIT 1""",
+            (addr,),
+        ).fetchone()
+
+        return result[0] if result is not None else None
+
     def match_function(self, addr: int, name: str) -> bool:
         did_match = self._match_on(SymbolType.FUNCTION, addr, name)
         if not did_match:
@@ -358,24 +397,28 @@ class CompareDb:
     def match_vtable(
         self, addr: int, name: str, base_class: Optional[str] = None
     ) -> bool:
+        # Set up our potential match names
+        bare_vftable = f"{name}::`vftable'"
+        for_name = base_class if base_class is not None else name
+        for_vftable = f"{name}::`vftable'{{for `{for_name}'}}"
+
         # Only allow a match against "Class:`vftable'"
         # if this is the derived class.
-        name = (
-            f"{name}::`vftable'"
-            if base_class is None or base_class == name
-            else f"{name}::`vftable'{{for `{base_class}'}}"
-        )
+        if base_class is None or base_class == name:
+            name_options = (for_vftable, bare_vftable)
+        else:
+            name_options = (for_vftable, for_vftable)
 
         row = self._db.execute(
             """
             SELECT recomp_addr
             FROM `symbols`
             WHERE orig_addr IS NULL
-            AND name = ?
+            AND (name = ? OR name = ?)
             AND (compare_type = ?)
             LIMIT 1
             """,
-            (name, SymbolType.VTABLE.value),
+            (*name_options, SymbolType.VTABLE.value),
         ).fetchone()
 
         if row is not None and self.set_pair(addr, row[0], SymbolType.VTABLE):

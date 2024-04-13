@@ -4,13 +4,14 @@ import difflib
 import struct
 from dataclasses import dataclass
 from typing import Callable, Iterable, List, Optional
-from isledecomp.bin import Bin as IsleBin
+from isledecomp.bin import Bin as IsleBin, InvalidVirtualAddressError
 from isledecomp.cvdump.demangler import demangle_string_const
 from isledecomp.cvdump import Cvdump, CvdumpAnalysis
 from isledecomp.parser import DecompCodebase
 from isledecomp.dir import walk_source_dir
 from isledecomp.types import SymbolType
 from isledecomp.compare.asm import ParseAsm, can_resolve_register_differences
+from isledecomp.compare.asm.fixes import patch_cmp_swaps
 from .db import CompareDb, MatchInfo
 from .diff import combined_diff
 from .lines import LinesDb
@@ -49,20 +50,13 @@ def create_reloc_lookup(bin_file: IsleBin) -> Callable[[int], bool]:
     return lookup
 
 
-def create_float_lookup(bin_file: IsleBin) -> Callable[[int, int], Optional[str]]:
-    """Function generator for floating point lookup"""
+def create_bin_lookup(bin_file: IsleBin) -> Callable[[int, int], Optional[str]]:
+    """Function generator for reading from the bin file"""
 
-    def lookup(addr: int, size: int) -> Optional[str]:
-        data = bin_file.read(addr, size)
-        # If this is a float constant, it should be initialized data.
-        if data is None:
-            return None
-
-        struct_str = "<f" if size == 4 else "<d"
+    def lookup(addr: int, size: int) -> Optional[bytes]:
         try:
-            (float_value,) = struct.unpack(struct_str, data)
-            return str(float_value)
-        except struct.error:
+            return bin_file.read(addr, size)
+        except InvalidVirtualAddressError:
             return None
 
     return lookup
@@ -84,6 +78,7 @@ class Compare:
         self._load_cvdump()
         self._load_markers()
         self._find_original_strings()
+        self._match_imports()
         self._match_thunks()
         self._match_exports()
         self._find_vtordisp()
@@ -174,6 +169,21 @@ class Compare:
         codefiles = list(walk_source_dir(self.code_dir))
         codebase = DecompCodebase(codefiles, module.upper())
 
+        def orig_bin_checker(addr: int) -> bool:
+            return self.orig_bin.is_valid_vaddr(addr)
+
+        # If the address of any annotation would cause an exception,
+        # remove it and report an error.
+        bad_annotations = codebase.prune_invalid_addrs(orig_bin_checker)
+
+        for sym in bad_annotations:
+            logger.error(
+                "Invalid address 0x%x on %s annotation in file: %s",
+                sym.offset,
+                sym.type.name,
+                sym.filename,
+            )
+
         # Match lineref functions first because this is a guaranteed match.
         # If we have two functions that share the same name, and one is
         # a lineref, we can match the nameref correctly because the lineref
@@ -235,7 +245,9 @@ class Compare:
 
             self._db.match_string(addr, string)
 
-    def _match_thunks(self):
+    def _match_imports(self):
+        """We can match imported functions based on the DLL name and
+        function symbol name."""
         orig_byaddr = {
             addr: (dll.upper(), name) for (dll, name, addr) in self.orig_bin.imports
         }
@@ -253,27 +265,70 @@ class Compare:
         # Now: we have the IAT offset in each matched up, so we need to make
         # the connection between the thunk functions.
         # We already have the symbol name we need from the PDB.
-        orig_thunks = {
-            iat_ofs: func_ofs for (func_ofs, iat_ofs) in self.orig_bin.thunks
-        }
-        recomp_thunks = {
-            iat_ofs: func_ofs for (func_ofs, iat_ofs) in self.recomp_bin.thunks
-        }
-
         for orig, recomp in orig_to_recomp.items():
-            self._db.set_pair(orig, recomp, SymbolType.POINTER)
-            thunk_from_orig = orig_thunks.get(orig, None)
-            thunk_from_recomp = recomp_thunks.get(recomp, None)
+            if orig is None or recomp is None:
+                continue
 
-            if thunk_from_orig is not None and thunk_from_recomp is not None:
-                self._db.set_function_pair(thunk_from_orig, thunk_from_recomp)
-                # Don't compare thunk functions for now. The comparison isn't
-                # "useful" in the usual sense. We are only looking at the 6
-                # bytes of the jmp instruction and not the larger context of
-                # where this function is. Also: these will always match 100%
-                # because we are searching for a match to register this as a
-                # function in the first place.
-                self._db.skip_compare(thunk_from_orig)
+            # Match the __imp__ symbol
+            self._db.set_pair(orig, recomp, SymbolType.POINTER)
+
+            # Read the relative address from .idata
+            try:
+                (recomp_rva,) = struct.unpack("<L", self.recomp_bin.read(recomp, 4))
+                (orig_rva,) = struct.unpack("<L", self.orig_bin.read(orig, 4))
+            except ValueError:
+                # Bail out if there's a problem with struct.unpack
+                continue
+
+            # Strictly speaking, this is a hack to support asm sanitize.
+            # When calling an import, we will recognize that the address for the
+            # CALL instruction is a pointer to the actual address, but this is
+            # not only not the address of a function, it is not an address at all.
+            # To make the asm display work correctly (i.e. to match what you see
+            # in ghidra) create a function match on the RVA. This is not a valid
+            # virtual address because it is before the imagebase, but it will
+            # do what we need it to do in the sanitize function.
+
+            (dll_name, func_name) = orig_byaddr[orig]
+            fullname = dll_name + ":" + func_name
+            self._db.set_recomp_symbol(
+                recomp_rva, SymbolType.FUNCTION, fullname, None, 4
+            )
+            self._db.set_pair(orig_rva, recomp_rva, SymbolType.FUNCTION)
+            self._db.skip_compare(orig_rva)
+
+    def _match_thunks(self):
+        """Thunks are (by nature) matched by indirection. If a thunk from orig
+        points at a function we have already matched, we can find the matching
+        thunk in recomp because it points to the same place."""
+
+        # Turn this one inside out for easy lookup
+        recomp_thunks = {
+            func_addr: thunk_addr for (thunk_addr, func_addr) in self.recomp_bin.thunks
+        }
+
+        for orig_thunk, orig_addr in self.orig_bin.thunks:
+            orig_func = self._db.get_by_orig(orig_addr)
+            if orig_func is None or orig_func.recomp_addr is None:
+                continue
+
+            # Check whether the thunk destination is a matched symbol
+            recomp_thunk = recomp_thunks.get(orig_func.recomp_addr)
+            if recomp_thunk is None:
+                continue
+
+            # The thunk symbol should already exist if it is the thunk of an
+            # imported function. Incremental build thunks have no symbol,
+            # so we need to give it a name for the asm diff output.
+            self._db.register_thunk(orig_thunk, recomp_thunk, orig_func.name)
+
+            # Don't compare thunk functions for now. The comparison isn't
+            # "useful" in the usual sense. We are only looking at the
+            # bytes of the jmp instruction and not the larger context of
+            # where this function is. Also: these will always match 100%
+            # because we are searching for a match to register this as a
+            # function in the first place.
+            self._db.skip_compare(orig_thunk)
 
     def _match_exports(self):
         # invert for name lookup
@@ -369,7 +424,16 @@ class Compare:
                     self._db.set_function_pair(orig_addr, recomp_addr)
 
     def _compare_function(self, match: MatchInfo) -> DiffReport:
-        orig_raw = self.orig_bin.read(match.orig_addr, match.size)
+        # Detect when the recomp function size would cause us to read
+        # enough bytes from the original function that we cross into
+        # the next annotated function.
+        next_orig = self._db.get_next_orig_addr(match.orig_addr)
+        if next_orig is not None:
+            orig_size = min(next_orig - match.orig_addr, match.size)
+        else:
+            orig_size = match.size
+
+        orig_raw = self.orig_bin.read(match.orig_addr, orig_size)
         recomp_raw = self.recomp_bin.read(match.recomp_addr, match.size)
 
         # It's unlikely that a function other than an adjuster thunk would
@@ -402,18 +466,18 @@ class Compare:
         orig_should_replace = create_reloc_lookup(self.orig_bin)
         recomp_should_replace = create_reloc_lookup(self.recomp_bin)
 
-        orig_float = create_float_lookup(self.orig_bin)
-        recomp_float = create_float_lookup(self.recomp_bin)
+        orig_bin_lookup = create_bin_lookup(self.orig_bin)
+        recomp_bin_lookup = create_bin_lookup(self.recomp_bin)
 
         orig_parse = ParseAsm(
             relocate_lookup=orig_should_replace,
             name_lookup=orig_lookup,
-            float_lookup=orig_float,
+            bin_lookup=orig_bin_lookup,
         )
         recomp_parse = ParseAsm(
             relocate_lookup=recomp_should_replace,
             name_lookup=recomp_lookup,
-            float_lookup=recomp_float,
+            bin_lookup=recomp_bin_lookup,
         )
 
         orig_combined = orig_parse.parse_asm(orig_raw, match.orig_addr)
@@ -429,7 +493,9 @@ class Compare:
         if ratio != 1.0:
             # Check whether we can resolve register swaps which are actually
             # perfect matches modulo compiler entropy.
-            is_effective_match = can_resolve_register_differences(orig_asm, recomp_asm)
+            is_effective_match = patch_cmp_swaps(
+                diff, orig_asm, recomp_asm
+            ) or can_resolve_register_differences(orig_asm, recomp_asm)
             unified_diff = combined_diff(
                 diff, orig_combined, recomp_combined, context_size=10
             )
@@ -536,7 +602,7 @@ class Compare:
     def _compare_match(self, match: MatchInfo) -> Optional[DiffReport]:
         """Router for comparison type"""
 
-        if match.size == 0:
+        if match.size is None or match.size == 0:
             return None
 
         options = self._db.get_match_options(match.orig_addr)

@@ -8,6 +8,19 @@
 
 class LegoWorld;
 class LegoAnimClass;
+class LegoAnimActor;
+
+struct LegoAnimStructComparator {
+	MxBool operator()(const char* const& p_a, const char* const& p_b) const { return strcmp(p_a, p_b) < 0; }
+};
+
+// SIZE 0x08
+struct LegoAnimStruct {
+	LegoROI* m_roi; // 0x00
+	MxU32 m_index;  // 0x04
+};
+
+typedef map<const char*, LegoAnimStruct, LegoAnimStructComparator> LegoAnimPresenterMap;
 
 // VTABLE: LEGO1 0x100d90c8
 // SIZE 0xbc
@@ -49,10 +62,16 @@ public:
 	virtual void VTable0x94();                                                             // vtable+0x94
 	virtual void VTable0x98();                                                             // vtable+0x98
 
-	// STUB: LEGO1 0x1000c990
-	virtual void VTable0x9c() {} // vtable+0x9c
+	// FUNCTION: LEGO1 0x1000c990
+	virtual LegoROI** VTable0x9c(MxU32& p_unk0x6c)
+	{
+		p_unk0x6c = m_unk0x6c;
+		return m_unk0x68;
+	} // vtable+0x9c
 
 	virtual void VTable0xa0(); // vtable+0xa0
+
+	void FUN_1006d680(LegoAnimActor* p_actor, MxFloat p_value);
 
 	inline LegoAnim* GetAnimation() { return m_anim; }
 
@@ -66,15 +85,19 @@ protected:
 	void FUN_100695c0();
 	LegoChar* FUN_100697c0(const LegoChar* p_und1, const LegoChar* p_und2);
 	LegoBool FUN_100698b0(const CompoundObject& p_rois, const LegoChar* p_und2);
+	LegoROI* FUN_100699e0(const LegoChar* p_und);
 	void FUN_10069b10();
+	void FUN_1006a3c0(LegoAnimPresenterMap& p_map, LegoTreeNode* p_node, LegoROI* p_roi);
+	void FUN_1006a4f0(LegoAnimPresenterMap& p_map, LegoAnimNodeData* p_data, const LegoChar* p_und, LegoROI* p_roi);
 	LegoBool FUN_1006aba0();
-	LegoBool FUN_1006abb0(LegoTreeNode*, undefined4);
+	MxBool FUN_1006abb0(LegoTreeNode* p_node, LegoROI* p_roi);
 	void FUN_1006ac90();
-	void FUN_1006c8a0(LegoBool);
+	void FUN_1006b9a0(LegoAnim* p_anim, MxLong p_time, Matrix4* p_matrix);
+	void FUN_1006c8a0(MxBool p_bool);
 
 	LegoAnim* m_anim;          // 0x64
-	undefined4* m_unk0x68;     // 0x68
-	undefined4 m_unk0x6c;      // 0x6c
+	LegoROI** m_unk0x68;       // 0x68
+	MxU32 m_unk0x6c;           // 0x6c
 	LegoROIList* m_unk0x70;    // 0x70
 	LegoROIList* m_unk0x74;    // 0x74
 	MxMatrix* m_unk0x78;       // 0x78
@@ -82,9 +105,9 @@ protected:
 	LegoWorld* m_currentWorld; // 0x80
 	MxAtomId m_animAtom;       // 0x84
 	undefined4 m_unk0x88;      // 0x88
-	undefined4 m_unk0x8c;      // 0x8c
-	undefined4 m_unk0x90;      // 0x90
-	undefined m_unk0x94;       // 0x94
+	LegoROI** m_unk0x8c;       // 0x8c
+	const char** m_unk0x90;    // 0x90
+	MxU8 m_unk0x94;            // 0x94
 	undefined m_unk0x95;       // 0x95
 	MxBool m_unk0x96;          // 0x96
 	undefined m_unk0x97;       // 0x97
@@ -95,7 +118,27 @@ protected:
 	Mx3DPointFloat m_unk0xa8;  // 0xa8
 };
 
+// clang-format off
 // SYNTHETIC: LEGO1 0x10068650
 // LegoAnimPresenter::`scalar deleting destructor'
+
+// TEMPLATE: LEGO1 0x10069d80
+// _Tree<char const *,pair<char const * const,LegoAnimStruct>,map<char const *,LegoAnimStruct,LegoAnimStructComparator,allocator<LegoAnimStruct> >::_Kfn,LegoAnimStructComparator,allocator<LegoAnimStruct> >::~_Tree<char const *,pair<char const * const,LegoAni
+
+// TEMPLATE: LEGO1 0x1006a320
+// Map<char const *,LegoAnimStruct,LegoAnimStructComparator>::~Map<char const *,LegoAnimStruct,LegoAnimStructComparator>
+
+// TEMPLATE: LEGO1 0x1006a370
+// map<char const *,LegoAnimStruct,LegoAnimStructComparator,allocator<LegoAnimStruct> >::~map<char const *,LegoAnimStruct,LegoAnimStructComparator,allocator<LegoAnimStruct> >
+
+// TEMPLATE: LEGO1 0x1006a750
+// _Tree<char const *,pair<char const * const,LegoAnimStruct>,map<char const *,LegoAnimStruct,LegoAnimStructComparator,allocator<LegoAnimStruct> >::_Kfn,LegoAnimStructComparator,allocator<LegoAnimStruct> >::iterator::_Dec
+
+// TEMPLATE: LEGO1 0x1006a7a0
+// _Tree<char const *,pair<char const * const,LegoAnimStruct>,map<char const *,LegoAnimStruct,LegoAnimStructComparator,allocator<LegoAnimStruct> >::_Kfn,LegoAnimStructComparator,allocator<LegoAnimStruct> >::_Insert
+
+// GLOBAL: LEGO1 0x100f7688
+// _Tree<char const *,pair<char const * const,LegoAnimStruct>,map<char const *,LegoAnimStruct,LegoAnimStructComparator,allocator<LegoAnimStruct> >::_Kfn,LegoAnimStructComparator,allocator<LegoAnimStruct> >::_Nil
+// clang-format on
 
 #endif // LEGOANIMPRESENTER_H

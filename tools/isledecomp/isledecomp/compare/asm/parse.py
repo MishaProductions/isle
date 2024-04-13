@@ -7,16 +7,16 @@ so that virtual addresses are replaced by symbol name or a generic
 placeholder string."""
 
 import re
+import struct
 from functools import cache
 from typing import Callable, List, Optional, Tuple
 from collections import namedtuple
-from isledecomp.bin import InvalidVirtualAddressError
-from capstone import Cs, CS_ARCH_X86, CS_MODE_32
 from .const import JUMP_MNEMONICS, SINGLE_OPERAND_INSTS
-
-disassembler = Cs(CS_ARCH_X86, CS_MODE_32)
+from .instgen import InstructGen, SectionType
 
 ptr_replace_regex = re.compile(r"\[(0x[0-9a-f]+)\]")
+
+displace_replace_regex = re.compile(r"\+ (0x[0-9a-f]+)\]")
 
 # For matching an immediate value on its own.
 # Preceded by start-of-string (first operand) or comma-space (second operand)
@@ -35,16 +35,33 @@ def from_hex(string: str) -> Optional[int]:
     return None
 
 
+def bytes_to_float(b: bytes) -> Optional[float]:
+    if len(b) == 4:
+        return struct.unpack("<f", b)[0]
+
+    if len(b) == 8:
+        return struct.unpack("<d", b)[0]
+
+    return None
+
+
+def bytes_to_dword(b: bytes) -> Optional[int]:
+    if len(b) == 4:
+        return struct.unpack("<L", b)[0]
+
+    return None
+
+
 class ParseAsm:
     def __init__(
         self,
         relocate_lookup: Optional[Callable[[int], bool]] = None,
         name_lookup: Optional[Callable[[int], str]] = None,
-        float_lookup: Optional[Callable[[int, int], Optional[str]]] = None,
+        bin_lookup: Optional[Callable[[int, int], Optional[bytes]]] = None,
     ) -> None:
         self.relocate_lookup = relocate_lookup
         self.name_lookup = name_lookup
-        self.float_lookup = float_lookup
+        self.bin_lookup = bin_lookup
         self.replacements = {}
         self.number_placeholders = True
 
@@ -58,25 +75,27 @@ class ParseAsm:
         return False
 
     def float_replace(self, addr: int, data_size: int) -> Optional[str]:
-        if callable(self.float_lookup):
-            try:
-                float_str = self.float_lookup(addr, data_size)
-            except InvalidVirtualAddressError:
-                # probably caused by reading an invalid instruction
+        if callable(self.bin_lookup):
+            float_bytes = self.bin_lookup(addr, data_size)
+            if float_bytes is None:
                 return None
-            if float_str is not None:
-                return f"{float_str} (FLOAT)"
+
+            float_value = bytes_to_float(float_bytes)
+            if float_value is not None:
+                return f"{float_value} (FLOAT)"
 
         return None
 
-    def lookup(self, addr: int) -> Optional[str]:
+    def lookup(self, addr: int, use_cache: bool = True) -> Optional[str]:
         """Return a replacement name for this address if we find one."""
-        if (cached := self.replacements.get(addr, None)) is not None:
+        if use_cache and (cached := self.replacements.get(addr, None)) is not None:
             return cached
 
         if callable(self.name_lookup):
             if (name := self.name_lookup(addr)) is not None:
-                self.replacements[addr] = name
+                if use_cache:
+                    self.replacements[addr] = name
+
                 return name
 
         return None
@@ -109,6 +128,40 @@ class ParseAsm:
             return match.group(0).replace(match.group(1), self.replace(value))
 
         return match.group(0)
+
+    def hex_replace_annotated(self, match: re.Match) -> str:
+        """For replacing immediate value operands. Here we replace the value
+        only if the name lookup returns something. Do not use a placeholder."""
+        value = int(match.group(1), 16)
+        placeholder = self.lookup(value, use_cache=False)
+        if placeholder is not None:
+            return match.group(0).replace(match.group(1), placeholder)
+
+        return match.group(0)
+
+    def hex_replace_indirect(self, match: re.Match) -> str:
+        """Edge case for hex_replace_always. The context of the instruction
+        tells us that the pointer value is an absolute indirect.
+        So we go to that location in the binary to get the address.
+        If we cannot identify the indirect address, fall back to a lookup
+        on the original pointer value so we might display something useful."""
+        value = int(match.group(1), 16)
+        indirect_value = None
+
+        if callable(self.bin_lookup):
+            indirect_value = self.bin_lookup(value, 4)
+
+        if indirect_value is not None:
+            indirect_addr = bytes_to_dword(indirect_value)
+            if (
+                indirect_addr is not None
+                and self.lookup(indirect_addr, use_cache=False) is not None
+            ):
+                return match.group(0).replace(
+                    match.group(1), "->" + self.replace(indirect_addr)
+                )
+
+        return match.group(0).replace(match.group(1), self.replace(value))
 
     def hex_replace_float(self, match: re.Match) -> str:
         """Special case for replacements on float instructions.
@@ -166,40 +219,67 @@ class ParseAsm:
             jump_displacement = op_str_address - (inst.address + inst.size)
             return (inst.mnemonic, hex(jump_displacement))
 
-        if inst.mnemonic.startswith("f"):
+        if inst.mnemonic == "call":
+            # Special handling for absolute indirect CALL.
+            op_str = ptr_replace_regex.sub(self.hex_replace_indirect, inst.op_str)
+        elif inst.mnemonic.startswith("f"):
             # If floating point instruction
             op_str = ptr_replace_regex.sub(self.hex_replace_float, inst.op_str)
         else:
             op_str = ptr_replace_regex.sub(self.hex_replace_always, inst.op_str)
 
-        op_str = immediate_replace_regex.sub(self.hex_replace_relocated, op_str)
+            # We only want relocated addresses for pointer displacement.
+            # i.e. ptr [register + something]
+            # Otherwise we would use a placeholder for every stack variable,
+            # vtable call, or this->member access.
+            op_str = displace_replace_regex.sub(self.hex_replace_relocated, op_str)
+
+        # In the event of pointer comparison, only replace the immediate value
+        # if it is a known address.
+        if inst.mnemonic == "cmp":
+            op_str = immediate_replace_regex.sub(self.hex_replace_annotated, op_str)
+        else:
+            op_str = immediate_replace_regex.sub(self.hex_replace_relocated, op_str)
+
         return (inst.mnemonic, op_str)
 
     def parse_asm(self, data: bytes, start_addr: Optional[int] = 0) -> List[str]:
         asm = []
 
-        for raw_inst in disassembler.disasm_lite(data, start_addr):
-            # Use heuristics to disregard some differences that aren't representative
-            # of the accuracy of a function (e.g. global offsets)
-            inst = DisasmLiteInst(*raw_inst)
+        ig = InstructGen(data, start_addr)
 
-            # If there is no pointer or immediate value in the op_str,
-            # there is nothing to sanitize.
-            # This leaves us with cases where a small immediate value or
-            # small displacement (this.member or vtable calls) appears.
-            # If we assume that instructions we want to sanitize need to be 5
-            # bytes -- 1 for the opcode and 4 for the address -- exclude cases
-            # where the hex value could not be an address.
-            # The exception is jumps which are as small as 2 bytes
-            # but are still useful to sanitize.
-            if "0x" in inst.op_str and (
-                inst.mnemonic in JUMP_MNEMONICS or inst.size > 4
-            ):
-                result = self.sanitize(inst)
-            else:
-                result = (inst.mnemonic, inst.op_str)
+        for sect_type, sect_contents in ig.sections:
+            if sect_type == SectionType.CODE:
+                for inst in sect_contents:
+                    # Use heuristics to disregard some differences that aren't representative
+                    # of the accuracy of a function (e.g. global offsets)
 
-            # mnemonic + " " + op_str
-            asm.append((hex(inst.address), " ".join(result)))
+                    # If there is no pointer or immediate value in the op_str,
+                    # there is nothing to sanitize.
+                    # This leaves us with cases where a small immediate value or
+                    # small displacement (this.member or vtable calls) appears.
+                    # If we assume that instructions we want to sanitize need to be 5
+                    # bytes -- 1 for the opcode and 4 for the address -- exclude cases
+                    # where the hex value could not be an address.
+                    # The exception is jumps which are as small as 2 bytes
+                    # but are still useful to sanitize.
+                    if "0x" in inst.op_str and (
+                        inst.mnemonic in JUMP_MNEMONICS or inst.size > 4
+                    ):
+                        result = self.sanitize(inst)
+                    else:
+                        result = (inst.mnemonic, inst.op_str)
+
+                    # mnemonic + " " + op_str
+                    asm.append((hex(inst.address), " ".join(result)))
+            elif sect_type == SectionType.ADDR_TAB:
+                asm.append(("", "Jump table:"))
+                for i, (ofs, _) in enumerate(sect_contents):
+                    asm.append((hex(ofs), f"Jump_dest_{i}"))
+
+            elif sect_type == SectionType.DATA_TAB:
+                asm.append(("", "Data table:"))
+                for ofs, b in sect_contents:
+                    asm.append((hex(ofs), hex(b)))
 
         return asm

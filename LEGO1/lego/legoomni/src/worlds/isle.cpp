@@ -30,8 +30,6 @@
 #include "skateboard.h"
 #include "towtrack.h"
 
-#include <vec.h>
-
 DECOMP_SIZE_ASSERT(Isle, 0x140)
 
 // GLOBAL: LEGO1 0x100f1198
@@ -401,11 +399,11 @@ MxLong Isle::HandleClick(LegoControlManagerEvent& p_param)
 			FUN_10031590();
 			break;
 		case IsleScript::c_Observe_GlobeLArrow_Ctl:
-			FUN_1003f050(-1);
+			UpdateLightPosition(-1);
 			FUN_10031590();
 			break;
 		case IsleScript::c_Observe_GlobeRArrow_Ctl:
-			FUN_1003f050(1);
+			UpdateLightPosition(1);
 			FUN_10031590();
 			break;
 		case IsleScript::c_Observe_Draw1_Ctl:
@@ -504,7 +502,7 @@ void Isle::Enable(MxBool p_enable)
 		if (CurrentActor() != NULL && CurrentActor()->IsA("Jetski")) {
 			IslePathActor* actor = CurrentActor();
 			actor->VTable0xe8(LegoGameState::e_unk45, FALSE, 7);
-			actor->SetUnknownDC(0);
+			actor->SetState(0);
 		}
 		else {
 			FUN_10032620();
@@ -666,14 +664,14 @@ void Isle::Enable(MxBool p_enable)
 				Mx3DPointFloat position(CurrentActor()->GetROI()->GetWorldPosition());
 
 				Mx3DPointFloat sub(-21.375f, 0.0f, -41.75f);
-				sub.Sub(&position);
-				if (NORMSQRD3(sub) < 1024.0f) {
+				((Vector3&) sub).Sub(&position);
+				if (sub.LenSquared() < 1024.0f) {
 					AnimationManager()->FUN_10064740(FALSE);
 				}
 
 				Mx3DPointFloat sub2(98.874992f, 0.0f, -46.156292f);
-				sub2.Sub(&position);
-				if (NORMSQRD3(sub2) < 1024.0f) {
+				((Vector3&) sub2).Sub(&position);
+				if (sub2.LenSquared() < 1024.0f) {
 					AnimationManager()->FUN_10064670(FALSE);
 				}
 			}
@@ -798,8 +796,8 @@ void Isle::FUN_10032620()
 	switch (GameState()->m_currentArea) {
 	case LegoGameState::e_unk66: {
 		MxMatrix mat(CurrentActor()->GetROI()->GetLocal2World());
-		MxU32 unk0x88 = CurrentActor()->GetUnknown88();
-		CurrentActor()->VTable0xec(mat, unk0x88, TRUE);
+		LegoPathBoundary* boundary = CurrentActor()->GetBoundary();
+		CurrentActor()->VTable0xec(mat, boundary, TRUE);
 		break;
 	}
 	case LegoGameState::e_unk4:
@@ -1116,4 +1114,10 @@ MxBool Isle::VTable0x64()
 {
 	// TODO
 	return FALSE;
+}
+
+// STUB: LEGO1 0x10033350
+void Isle::FUN_10033350()
+{
+	// TODO
 }

@@ -147,9 +147,13 @@ target_link_libraries(roi PRIVATE viewmanager Vec::Vec)
 
 add_library(geom STATIC
   LEGO1/lego/sources/geom/legobox.cpp
+  LEGO1/lego/sources/geom/legoedge.cpp
   LEGO1/lego/sources/geom/legomesh.cpp
   LEGO1/lego/sources/geom/legosphere.cpp
+  LEGO1/lego/sources/geom/legounkown100db7f4.cpp
   LEGO1/lego/sources/geom/legovertex.cpp
+  LEGO1/lego/sources/geom/legoweedge.cpp
+  LEGO1/lego/sources/geom/legowegedge.cpp
 )
 register_lego1_target(geom)
 set_property(TARGET geom PROPERTY ARCHIVE_OUTPUT_NAME "geom$<$<CONFIG:Debug>:d>")
@@ -171,6 +175,7 @@ add_library(misc STATIC
   LEGO1/lego/sources/misc/legostorage.cpp
   LEGO1/lego/sources/misc/legotexture.cpp
   LEGO1/lego/sources/misc/legotree.cpp
+  LEGO1/lego/sources/misc/legounknown.cpp
 )
 register_lego1_target(misc)
 set_property(TARGET misc PROPERTY ARCHIVE_OUTPUT_NAME "misc$<$<CONFIG:Debug>:d>")
@@ -303,10 +308,10 @@ add_library(lego1 SHARED
   LEGO1/lego/legoomni/src/actors/towtrack.cpp
   LEGO1/lego/legoomni/src/audio/lego3dwavepresenter.cpp
   LEGO1/lego/legoomni/src/audio/legocachsound.cpp
+  LEGO1/lego/legoomni/src/audio/legocachesoundmanager.cpp
   LEGO1/lego/legoomni/src/audio/legoloadcachesoundpresenter.cpp
   LEGO1/lego/legoomni/src/audio/legosoundmanager.cpp
   LEGO1/lego/legoomni/src/audio/legounknown100d5778.cpp
-  LEGO1/lego/legoomni/src/audio/legounknown100d6b4c.cpp
   LEGO1/lego/legoomni/src/audio/mxbackgroundaudiomanager.cpp
   LEGO1/lego/legoomni/src/build/buildingentity.cpp
   LEGO1/lego/legoomni/src/build/helicopterstate.cpp
@@ -366,6 +371,7 @@ add_library(lego1 SHARED
   LEGO1/lego/legoomni/src/paths/legoanimactor.cpp
   LEGO1/lego/legoomni/src/paths/legoextraactor.cpp
   LEGO1/lego/legoomni/src/paths/legopathactor.cpp
+  LEGO1/lego/legoomni/src/paths/legopathboundary.cpp
   LEGO1/lego/legoomni/src/paths/legopathcontroller.cpp
   LEGO1/lego/legoomni/src/paths/legopathpresenter.cpp
   LEGO1/lego/legoomni/src/pizzeria/pizzamissionstate.cpp

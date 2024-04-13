@@ -13,7 +13,6 @@ class LegoROI;
 
 #pragma warning(disable : 4237)
 
-// TODO: generic string comparator?
 struct LegoCharacterComparator {
 	MxBool operator()(const char* const& p_a, const char* const& p_b) const { return strcmpi(p_a, p_b) < 0; }
 };
@@ -25,8 +24,17 @@ struct LegoCharacter {
 		m_roi = p_roi;
 		m_refCount = 1;
 	}
+	~LegoCharacter() { delete m_roi; }
 
 	inline void AddRef() { m_refCount++; }
+	inline MxU32 RemoveRef()
+	{
+		if (m_refCount != 0) {
+			m_refCount--;
+		}
+
+		return m_refCount;
+	}
 
 	LegoROI* m_roi;   // 0x00
 	MxU32 m_refCount; // 0x04
@@ -47,22 +55,27 @@ public:
 
 	void Init();
 	static void SetCustomizeAnimFile(const char* p_value);
-	static MxBool FUN_10084c00(const LegoChar*);
+	static MxBool Exists(const char* p_key);
 
 	void FUN_100832a0();
+	MxU32 GetRefCount(LegoROI* p_roi);
 	void FUN_10083db0(LegoROI* p_roi);
 	void FUN_10083f10(LegoROI* p_roi);
-	LegoExtraActor* FUN_10084c40(const LegoChar*);
-	LegoCharacterData* Find(const char* p_key);
+	LegoExtraActor* GetActor(const char* p_key);
+	LegoCharacterData* GetData(const char* p_key);
+	LegoCharacterData* GetData(LegoROI* p_roi);
 	MxBool FUN_10084ec0(LegoROI* p_roi);
-	MxU32 FUN_10085140(LegoROI*, MxBool);
-	LegoROI* FUN_10085210(const LegoChar*, LegoChar*, undefined);
-	LegoROI* FUN_10085a80(LegoChar* p_und1, LegoChar* p_und2, undefined p_und3);
+	MxU32 FUN_10085140(LegoROI* p_roi, MxBool p_und);
+	LegoROI* FUN_10085210(const char* p_name, const char* p_lodName, MxBool p_createEntity);
+	LegoROI* FUN_10085a80(const char* p_name, const char* p_lodName, MxBool p_createEntity);
 
 	static const char* GetCustomizeAnimFile() { return g_customizeAnimFile; }
 
 private:
 	LegoROI* CreateROI(const char* p_key);
+	void RemoveROI(LegoROI* p_roi);
+	LegoROI* FUN_10084cf0(LegoROI* p_roi, const char* p_name);
+	MxResult FUN_10085870(LegoROI* p_roi);
 
 	static char* g_customizeAnimFile;
 
@@ -97,6 +110,18 @@ private:
 
 // TEMPLATE: LEGO1 0x10083890
 // _Tree<char const *,pair<char const * const,LegoCharacter *>,map<char const *,LegoCharacter *,LegoCharacterComparator,allocator<LegoCharacter *> >::_Kfn,LegoCharacterComparator,allocator<LegoCharacter *> >::_Insert
+
+// TEMPLATE: LEGO1 0x10085500
+// _Tree<char const *,pair<char const * const,LegoCharacter *>,map<char const *,LegoCharacter *,LegoCharacterComparator,allocator<LegoCharacter *> >::_Kfn,LegoCharacterComparator,allocator<LegoCharacter *> >::insert
+
+// TEMPLATE: LEGO1 0x10085790
+// _Tree<char const *,pair<char const * const,LegoCharacter *>,map<char const *,LegoCharacter *,LegoCharacterComparator,allocator<LegoCharacter *> >::_Kfn,LegoCharacterComparator,allocator<LegoCharacter *> >::_Buynode
+
+// TEMPLATE: LEGO1 0x100857b0
+// _Tree<char const *,pair<char const * const,LegoCharacter *>,map<char const *,LegoCharacter *,LegoCharacterComparator,allocator<LegoCharacter *> >::_Kfn,LegoCharacterComparator,allocator<LegoCharacter *> >::_Lrotate
+
+// TEMPLATE: LEGO1 0x10085810
+// _Tree<char const *,pair<char const * const,LegoCharacter *>,map<char const *,LegoCharacter *,LegoCharacterComparator,allocator<LegoCharacter *> >::_Kfn,LegoCharacterComparator,allocator<LegoCharacter *> >::_Rrotate
 
 // GLOBAL: LEGO1 0x100fc508
 // _Tree<char const *,pair<char const * const,LegoCharacter *>,map<char const *,LegoCharacter *,LegoCharacterComparator,allocator<LegoCharacter *> >::_Kfn,LegoCharacterComparator,allocator<LegoCharacter *> >::_Nil

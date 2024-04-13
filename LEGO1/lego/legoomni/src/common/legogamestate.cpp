@@ -181,7 +181,7 @@ void LegoGameState::SetActor(MxU8 p_actorId)
 
 	if (oldActor) {
 		newActor->GetROI()->FUN_100a58f0(oldActor->GetROI()->GetLocal2World());
-		newActor->SetUnknown88(oldActor->GetUnknown88());
+		newActor->SetBoundary(oldActor->GetBoundary());
 		delete oldActor;
 	}
 
@@ -350,7 +350,7 @@ MxResult LegoGameState::Load(MxULong p_slot)
 		}
 	} while (status != 2);
 
-	m_backgroundColor->SetLights();
+	m_backgroundColor->SetLightColor();
 	lightPosition = VariableTable()->GetVariable("lightposition");
 
 	if (lightPosition) {
@@ -1064,9 +1064,7 @@ void LegoGameState::RegisterState(LegoState* p_state)
 		return;
 	}
 
-	if (m_stateArray[targetIndex]) {
-		delete m_stateArray[targetIndex];
-	}
+	delete m_stateArray[targetIndex];
 	m_stateArray[targetIndex] = p_state;
 }
 
@@ -1074,7 +1072,7 @@ void LegoGameState::RegisterState(LegoState* p_state)
 void LegoGameState::Init()
 {
 	m_backgroundColor->SetValue("set 56 54 68");
-	m_backgroundColor->SetLights();
+	m_backgroundColor->SetLightColor();
 	m_tempBackgroundColor->SetValue("set 56 54 68");
 	VariableTable()->SetVariable("lightposition", "2");
 	SetLightPosition(2);

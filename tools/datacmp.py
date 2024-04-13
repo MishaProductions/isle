@@ -16,7 +16,7 @@ from isledecomp.cvdump.types import (
 from isledecomp.bin import Bin as IsleBin
 import colorama
 
-colorama.init()
+colorama.just_fix_windows_console()
 
 
 # Ignore all compare-db messages.
@@ -46,6 +46,13 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument(
         "--no-color", "-n", action="store_true", help="Do not color the output"
+    )
+    parser.add_argument(
+        "--all",
+        "-a",
+        dest="show_all",
+        action="store_true",
+        help="Only show variables with a problem",
     )
     parser.add_argument(
         "--print-rec-addr",
@@ -236,7 +243,7 @@ def do_the_comparison(args: argparse.Namespace) -> Iterable[ComparisonItem]:
 
             # If we are here, we can do the type-aware comparison.
             compared = []
-            compare_items = mini_cvdump.types.get_scalars(type_name)
+            compare_items = mini_cvdump.types.get_scalars_gapless(type_name)
             format_str = mini_cvdump.types.get_format_string(type_name)
 
             orig_data = unpack(format_str, orig_raw)
@@ -308,8 +315,15 @@ def main():
         )
         return f"{match_color}{result.name}{colorama.Style.RESET_ALL}"
 
+    var_count = 0
+    problems = 0
+
     for item in do_the_comparison(args):
-        if not args.verbose and item.result == CompareResult.MATCH:
+        var_count += 1
+        if item.result in (CompareResult.DIFF, CompareResult.ERROR):
+            problems += 1
+
+        if not args.show_all and item.result == CompareResult.MATCH:
             continue
 
         address_display = (
@@ -334,8 +348,14 @@ def main():
                     f"  {c.offset:5} {value_get(c.name, '(value)'):30} {value_a} : {value_b}"
                 )
 
-        print()
+        if args.verbose:
+            print()
+
+    print(
+        f"{os.path.basename(args.original)} - Variables: {var_count}. Issues: {problems}"
+    )
+    return 0 if problems == 0 else 1
 
 
 if __name__ == "__main__":
-    main()
+    raise SystemExit(main())

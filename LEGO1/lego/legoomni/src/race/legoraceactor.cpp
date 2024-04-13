@@ -15,12 +15,6 @@ LegoRaceActor::LegoRaceActor()
 	m_unk0x08 = 0;
 }
 
-// STUB: LEGO1 0x10014ca0
-void LegoRaceActor::ParseAction(char*)
-{
-	// TODO
-}
-
 // STUB: LEGO1 0x10014cb0
 void LegoRaceActor::SetWorldSpeed(MxFloat p_worldSpeed)
 {
@@ -28,7 +22,7 @@ void LegoRaceActor::SetWorldSpeed(MxFloat p_worldSpeed)
 }
 
 // STUB: LEGO1 0x10014cc0
-void LegoRaceActor::VTable0x68()
+void LegoRaceActor::VTable0x68(Mx3DPointFloat&, Mx3DPointFloat&, Mx3DPointFloat&)
 {
 	// TODO
 }
@@ -40,14 +34,14 @@ void LegoRaceActor::VTable0x70(float p_float)
 }
 
 // STUB: LEGO1 0x10014ce0
-MxS32 LegoRaceActor::VTable0x90()
+MxU32 LegoRaceActor::VTable0x90(float, Matrix4&)
 {
 	// TODO
 	return 0;
 }
 
 // STUB: LEGO1 0x10014cf0
-MxS32 LegoRaceActor::VTable0x94()
+MxResult LegoRaceActor::VTable0x94(LegoPathActor* p_actor, MxBool p_bool)
 {
 	// TODO
 	return 0;

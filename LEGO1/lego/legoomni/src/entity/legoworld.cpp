@@ -198,7 +198,7 @@ void LegoWorld::Destroy(MxBool p_fromDestructor)
 
 		while (cursor.First(sound)) {
 			cursor.Detach();
-			SoundManager()->GetUnknown0x40()->FUN_1003dc40(&sound);
+			SoundManager()->GetCacheSoundManager()->FUN_1003dc40(&sound);
 		}
 
 		delete m_cacheSoundList;
@@ -285,6 +285,13 @@ void LegoWorld::FUN_1001fc80(IslePathActor* p_actor)
 			break;
 		}
 	}
+}
+
+// FUNCTION: LEGO1 0x1001ff80
+void LegoWorld::AddPath(LegoPathController* p_controller)
+{
+	p_controller->FUN_10046bb0(this);
+	m_list0x68.Append(p_controller);
 }
 
 // FUNCTION: LEGO1 0x10020120

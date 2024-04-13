@@ -6,6 +6,9 @@
 #include <math.h>
 #include <memory.h>
 
+// Note: Many functions most likely take const references/pointers instead of non-const.
+// The class needs to undergo a very careful refactoring to fix that (no matches should break).
+
 // VTABLE: LEGO1 0x100d4288
 // SIZE 0x08
 class Vector2 {
@@ -98,6 +101,7 @@ public:
 	virtual int Unitize()
 	{
 		float sq = LenSquared();
+
 		if (sq > 0.0f) {
 			float root = sqrt(sq);
 			if (root > 0) {
@@ -105,6 +109,7 @@ public:
 				return 0;
 			}
 		}
+
 		return -1;
 	} // vtable+0x44
 
@@ -121,7 +126,7 @@ public:
 	virtual void Sub(float* p_other) { SubImpl(p_other); } // vtable+0x58
 
 	// FUNCTION: LEGO1 0x10002200
-	virtual void Sub(Vector2* p_other) { SubImpl(p_other->m_data); } // vtable+0x54
+	virtual void Sub(const Vector2* p_other) { SubImpl((float*) p_other->m_data); } // vtable+0x54
 
 	// FUNCTION: LEGO1 0x10002210
 	virtual void Mul(float* p_other) { MulVectorImpl(p_other); } // vtable+0x64
@@ -130,7 +135,7 @@ public:
 	virtual void Mul(Vector2* p_other) { MulVectorImpl(p_other->m_data); } // vtable+0x60
 
 	// FUNCTION: LEGO1 0x10002230
-	virtual void Mul(float& p_value) { MulScalarImpl(&p_value); } // vtable+0x5c
+	virtual void Mul(const float& p_value) { MulScalarImpl((float*) &p_value); } // vtable+0x5c
 
 	// FUNCTION: LEGO1 0x10002240
 	virtual void Div(float& p_value) { DivScalarImpl(&p_value); } // vtable+0x68
@@ -149,8 +154,8 @@ public:
 		Vector2::SetVector(&p_other);
 		return *this;
 	}
-	inline float& operator[](size_t idx) { return m_data[idx]; }
-	inline const float& operator[](size_t idx) const { return m_data[idx]; }
+	inline float& operator[](int idx) { return m_data[idx]; }
+	inline const float& operator[](int idx) const { return m_data[idx]; }
 
 protected:
 	float* m_data; // 0x04
@@ -262,7 +267,7 @@ public:
 	// FUNCTION: LEGO1 0x10003bd0
 	float LenSquared() const override
 	{
-		return m_data[1] * m_data[1] + m_data[0] * m_data[0] + m_data[2] * m_data[2];
+		return m_data[0] * m_data[0] + m_data[1] * m_data[1] + m_data[2] * m_data[2];
 	} // vtable+0x40
 
 	inline void Fill(float p_value) { EqualsScalar(&p_value); }

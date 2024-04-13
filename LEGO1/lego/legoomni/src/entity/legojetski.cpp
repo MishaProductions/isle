@@ -56,7 +56,7 @@ void LegoJetski::VTable0x70(float p_float)
 }
 
 // STUB: LEGO1 0x100141b0
-MxS32 LegoJetski::VTable0x94()
+MxResult LegoJetski::VTable0x94(LegoPathActor* p_actor, MxBool p_bool)
 {
 	// TODO
 	return 0;
@@ -69,7 +69,8 @@ void LegoJetski::VTable0x98()
 }
 
 // STUB: LEGO1 0x10014200
-void LegoJetski::VTable0x9c()
+MxResult LegoJetski::WaitForAnimation()
 {
 	// TODO
+	return SUCCESS;
 }

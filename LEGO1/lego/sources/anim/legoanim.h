@@ -123,11 +123,13 @@ public:
 	LegoU32 GetRotationIndex() { return m_rotationIndex; }
 	LegoU32 GetScaleIndex() { return m_scaleIndex; }
 	LegoU32 GetMorphIndex() { return m_morphIndex; }
+	undefined2 GetUnknown0x20() { return m_unk0x20; }
 
 	void SetTranslationIndex(LegoU32 p_translationIndex) { m_translationIndex = p_translationIndex; }
 	void SetRotationIndex(LegoU32 p_rotationIndex) { m_rotationIndex = p_rotationIndex; }
 	void SetScaleIndex(LegoU32 p_scaleIndex) { m_scaleIndex = p_scaleIndex; }
 	void SetMorphIndex(LegoU32 p_morphIndex) { m_morphIndex = p_morphIndex; }
+	void SetUnknown0x20(undefined2 p_unk0x20) { m_unk0x20 = p_unk0x20; }
 
 	LegoResult CreateLocalTransform(LegoTime p_time, Matrix4& p_matrix)
 	{
@@ -206,6 +208,7 @@ public:
 	LegoAnimScene();
 	~LegoAnimScene();
 	LegoResult Read(LegoStorage* p_storage);
+	undefined4 FUN_1009f490(LegoFloat p_time, Matrix4& p_matrix);
 
 private:
 	LegoU16 m_unk0x00;             // 0x00
@@ -232,6 +235,8 @@ public:
 
 	const LegoChar* GetActorName(LegoU32 p_index);
 	undefined4 GetActorUnknown0x04(LegoU32 p_index);
+
+	inline LegoAnimScene* GetScene() { return m_scene; }
 
 	// SYNTHETIC: LEGO1 0x100a0ba0
 	// LegoAnim::`scalar deleting destructor'
