@@ -1,5 +1,7 @@
 #include "legophonemepresenter.h"
 
+#include "flic.h"
+
 DECOMP_SIZE_ASSERT(LegoPhonemePresenter, 0x88)
 
 // FUNCTION: LEGO1 0x1004e180
@@ -30,10 +32,23 @@ void LegoPhonemePresenter::StartingTickle()
 	EndAction();
 }
 
-// STUB: LEGO1 0x1004e800
+// FUNCTION: LEGO1 0x1004e800
 void LegoPhonemePresenter::LoadFrame(MxStreamChunk* p_chunk)
 {
-	// TODO
+	MxU8* data = p_chunk->GetData();
+
+	MxS32 rectCount = *(MxS32*) data;
+
+	m_unk0x68 = rectCount;
+
+	MxBool decodedColorMap;
+	DecodeFLCFrame(
+		&m_bitmap->GetBitmapInfo()->m_bmiHeader,
+		m_bitmap->GetBitmapData(),
+		m_flcHeader,
+		(FLIC_FRAME*) (p_chunk->GetData()[rectCount]),
+		&decodedColorMap
+	);
 }
 
 // STUB: LEGO1 0x1004e840
